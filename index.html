@@ -7,20 +7,22 @@
   <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- Google Fonts: Inter & JetBrains Mono -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <!-- Fonts: Roboto & System UI -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg-app: #F8FAFC;
       --bg-surface: #FFFFFF;
       --bg-subtle: #F1F5F9;
-      --border: #E2E8F0;
-      --border-strong: #CBD5E1;
-      --text-primary: #0F172A;
+      --border: #CBD5E1;
+      --border-strong: #94A3B8;
+      --text-primary: #1E293B;
       --text-secondary: #475569;
       --text-muted: #64748B;
-      --accent: #0F172A;
-      --brand: #2563EB;
+      --accent: #1E293B;
+      --brand: #1E40AF;
       --brand-hover: #1D4ED8;
       --danger: #DC2626;
       --danger-bg: #FEF2F2;
@@ -28,18 +30,20 @@
       --success: #16A34A;
       --success-bg: #F0FDF4;
       --success-border: #BBF7D0;
-      --mono: 'JetBrains Mono', monospace;
+      --font-stack: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+      --mono: 'Segoe UI', Roboto, Arial, sans-serif;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: var(--font-stack);
       background-color: var(--bg-app);
       color: var(--text-primary);
       height: 100vh;
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      font-variant-numeric: tabular-nums;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -81,27 +85,16 @@
       letter-spacing: 0.5px;
     }
     .brand-title {
-      font-size: 14px;
-      font-weight: 700;
+      font-size: 15px;
+      font-weight: 600;
       color: var(--text-primary);
-      letter-spacing: -0.2px;
-    }
-    .brand-divider {
-      width: 1px;
-      height: 18px;
-      background: var(--border);
-    }
-    .brand-subtitle {
-      font-size: 12px;
-      color: var(--text-secondary);
-      font-weight: 500;
     }
 
     /* NAVIGATION */
     .nav-group {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
       height: 100%;
     }
     .tab-btn {
@@ -109,9 +102,9 @@
       background: transparent;
       border: none;
       border-bottom: 2px solid transparent;
-      padding: 0 14px;
+      padding: 0 16px;
       font-family: inherit;
-      font-size: 12.5px;
+      font-size: 13px;
       font-weight: 500;
       color: var(--text-secondary);
       cursor: pointer;
@@ -127,25 +120,6 @@
       color: var(--brand);
       border-bottom-color: var(--brand);
       font-weight: 600;
-    }
-
-    /* METRIC SUMMARY PILLS */
-    .meta-strip {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      font-size: 11.5px;
-      color: var(--text-secondary);
-    }
-    .meta-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .meta-item strong {
-      font-family: var(--mono);
-      font-weight: 600;
-      color: var(--text-primary);
     }
 
     /* VIEWPORT */
@@ -701,16 +675,16 @@
       padding: 10px 12px;
       border-bottom: 1px solid var(--border);
       text-align: right;
-      font-family: var(--mono);
+      font-family: inherit;
       color: var(--text-primary);
     }
     table.sci-table td:first-child {
-      font-family: 'Inter', sans-serif;
+      font-family: inherit;
       text-align: left;
       font-weight: 600;
     }
     table.sci-table td:nth-child(2) {
-      font-family: 'Inter', sans-serif;
+      font-family: inherit;
       text-align: left;
       color: var(--text-secondary);
     }
@@ -729,8 +703,6 @@
     <div class="brand-group">
       <img src="cache/22dttm.jpg" alt="Logo" class="brand-logo" />
       <span class="brand-title">Phuoc Son Landslide Susceptibility System</span>
-      <span class="brand-divider"></span>
-      <span class="brand-subtitle">Sentinel-2 GEE (10m) · ALOS PALSAR DEM · Ensemble ML</span>
     </div>
 
     <nav class="nav-group">
@@ -747,12 +719,6 @@
         4. Kiểm chứng Thực địa (Hình 14 & 15)
       </button>
     </nav>
-
-    <div class="meta-strip">
-      <div class="meta-item">Diện tích: <strong>1,142 km²</strong></div>
-      <div class="meta-item">Mẫu huấn luyện: <strong>4,050 px</strong></div>
-      <div class="meta-item">XGBoost AUC: <strong>0.9997</strong></div>
-    </div>
   </header>
 
   <!-- ======================================================================= -->
