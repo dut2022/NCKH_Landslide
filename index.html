@@ -835,22 +835,22 @@
 
     <nav class="navbar-menu">
       <button class="menu-item-btn active" onclick="switchTab('tab-webgis', this)">
-        <span class="menu-icon">🗺️</span> Bản đồ
+        Bản đồ
       </button>
       <button class="menu-item-btn" onclick="switchTab('tab-rasters', this)">
-        <span class="menu-icon">📚</span> Dữ liệu
+        Dữ liệu
       </button>
       <button class="menu-item-btn" onclick="switchTab('tab-models', this)">
-        <span class="menu-icon">📊</span> Phân tích
+        Phân tích
       </button>
       <button class="menu-item-btn" onclick="switchTab('tab-validation', this)">
-        <span class="menu-icon">📑</span> Báo cáo
+        Báo cáo
       </button>
     </nav>
 
     <div class="navbar-actions">
       <div class="search-box-pill">
-        <span>🔍</span>
+        
         <input type="text" placeholder="Tìm kiếm địa điểm, tọa độ..." onkeydown="handleSearch(event)" />
       </div>
       <button class="quick-zoom-btn" onclick="zoomToPhuocLoc()">Phước Lộc</button>
@@ -874,7 +874,7 @@
     <aside class="geoportal-panel-left" id="panel-left">
       <div class="panel-card-head">
         <div class="panel-card-title">
-          <span>📚</span> Lớp dữ liệu địa lý
+          Lớp dữ liệu địa lý
         </div>
         <button class="panel-collapse-trigger" onclick="toggleLeftPanel()" title="Thu gọn bảng">
           ◀
@@ -887,7 +887,6 @@
           <label class="layer-row-card active" onclick="selectLayer('dubao_phuocloc_xgb_5cap')">
             <div class="layer-row-left">
               <input type="radio" name="main_layer" value="dubao_phuocloc_xgb_5cap" checked />
-              <span class="layer-icon-badge icon-orange">⚡</span>
               <span>1. Dự báo Mới nhất (XGBoost)</span>
             </div>
           </label>
@@ -895,7 +894,6 @@
           <label class="layer-row-card" onclick="selectLayer('ndvi_pre')">
             <div class="layer-row-left">
               <input type="radio" name="main_layer" value="ndvi_pre" />
-              <span class="layer-icon-badge icon-green">🌱</span>
               <span>2. NDVI Trước sạt lở (06–08/2020)</span>
             </div>
           </label>
@@ -903,7 +901,6 @@
           <label class="layer-row-card" onclick="selectLayer('ndvi_post')">
             <div class="layer-row-left">
               <input type="radio" name="main_layer" value="ndvi_post" />
-              <span class="layer-icon-badge icon-forest">🌲</span>
               <span>3. NDVI Sau sạt lở (10/2020–02/2021)</span>
             </div>
           </label>
@@ -911,7 +908,6 @@
           <label class="layer-row-card" onclick="selectLayer('ndvi_diff')">
             <div class="layer-row-left">
               <input type="radio" name="main_layer" value="ndvi_diff" />
-              <span class="layer-icon-badge icon-purple">🍂</span>
               <span>4. Độ suy giảm Thực vật (ΔNDVI)</span>
             </div>
           </label>
@@ -919,7 +915,6 @@
           <label class="layer-row-card" onclick="selectLayer('rainfall')">
             <div class="layer-row-left">
               <input type="radio" name="main_layer" value="rainfall" />
-              <span class="layer-icon-badge icon-blue">💧</span>
               <span>5. Lượng mưa ngày 28/10/2020</span>
             </div>
           </label>
@@ -927,7 +922,6 @@
           <label class="layer-row-card" onclick="selectLayer('slope')">
             <div class="layer-row-left">
               <input type="radio" name="main_layer" value="slope" />
-              <span class="layer-icon-badge icon-amber">📐</span>
               <span>6. Độ dốc địa hình (Slope)</span>
             </div>
           </label>
@@ -935,7 +929,6 @@
           <label class="layer-row-card" onclick="selectLayer('elevation')">
             <div class="layer-row-left">
               <input type="radio" name="main_layer" value="elevation" />
-              <span class="layer-icon-badge icon-slate">⛰️</span>
               <span>7. Độ cao địa hình DEM (12.5m)</span>
             </div>
           </label>
@@ -951,7 +944,7 @@
         <!-- MỤC MỞ RỘNG: VECTOR & NỀN -->
         <div class="extra-menu-list">
           <button class="extra-menu-btn" onclick="toggleSubMenu('menu-vector')">
-            <span>🛠️ Lớp ranh giới & Vị trí kiểm kê</span>
+            <span>Lớp ranh giới & Vị trí kiểm kê</span>
             <span>▾</span>
           </button>
           <div class="extra-menu-content" id="menu-vector">
@@ -973,7 +966,7 @@
           </div>
 
           <button class="extra-menu-btn" onclick="toggleSubMenu('menu-basemap')">
-            <span>📖 Bản đồ nền vệ tinh / địa hình</span>
+            <span>Bản đồ nền vệ tinh / địa hình</span>
             <span>▾</span>
           </button>
           <div class="extra-menu-content" id="menu-basemap" style="display:none;">
@@ -1001,10 +994,10 @@
       <!-- NÚT CHUYỂN NỀN NHANH DƯỚI GÓC TRÁI BẢN ĐỒ -->
       <div class="floating-map-tools">
         <div class="tool-pill" onclick="switchBaseMapToggle()">
-          <span>🗺️</span> <span id="lbl-toggle-basemap">Chuyển sang Địa hình</span>
+           <span id="lbl-toggle-basemap">Chuyển sang Địa hình</span>
         </div>
         <a id="btn-download-tif-pill" href="/download_tif/DuBao_PhuocLoc_XGBoost.tif" class="tool-pill" style="text-decoration:none;">
-          <span>💾</span> Tải file .TIF
+           Tải file .TIF
         </a>
       </div>
 
@@ -1016,7 +1009,7 @@
     <aside class="geoportal-panel-right">
       <div class="panel-right-head">
         <div class="panel-right-title">
-          <span>📊</span> Tổng quan không gian & Truy vấn
+          Tổng quan không gian & Truy vấn
         </div>
       </div>
 
