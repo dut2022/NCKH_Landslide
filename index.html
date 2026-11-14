@@ -992,10 +992,7 @@
         <div class="tool-pill" onclick="switchBaseMapToggle()">
            <span id="lbl-toggle-basemap">Chuyển sang Địa hình</span>
         </div>
-        <a id="btn-download-tif-pill" href="/download_tif/DuBao_PhuocLoc_XGBoost.tif" class="tool-pill" style="text-decoration:none;">
-           Tải file .TIF
-        </a>
-      </div>
+        </div>
 
       <!-- CHÚ GIẢI THANG MÀU DƯỚI GÓC PHẢI BẢN ĐỒ -->
       <div class="geoportal-legend-card" id="map-legend"></div>
@@ -1107,7 +1104,7 @@
     <div class="page-viewport-container">
       <div class="page-header-strip">
         <h2>Kết quả Huấn luyện & Kiểm định 3 Mô hình Học máy (LR, RF, XGBoost)</h2>
-        <p>Đánh giá trên bộ dữ liệu chuẩn Finnal.csv (4,050 pixels: 2,033 pixels sạt lở và 2,017 pixels không sạt lở; tỷ lệ Train 80% / Test 20%).</p>
+        <p>Đánh giá trên bộ dữ liệu thực địa chuẩn hóa (4,050 pixels: 2,033 pixels sạt lở và 2,017 pixels không sạt lở; tỷ lệ Train 80% / Test 20%).</p>
       </div>
 
       <div class="geoportal-card" style="margin-bottom:20px;">
@@ -1225,28 +1222,6 @@
         </div>
       </div>
 
-      <div class="geoportal-card">
-        <div class="geoportal-card-head">
-          <span>Trích xuất Dữ liệu Mẫu từ Finnal.csv (Chọn mẫu để nạp sang Bản đồ)</span>
-        </div>
-        <div style="max-height:280px; overflow-y:auto;">
-          <table class="sci-table" id="finnal-sample-table">
-            <thead>
-              <tr>
-                <th>POINTID</th>
-                <th>Nhãn thực tế (LS)</th>
-                <th>NDVI_truoc</th>
-                <th>NDVI_sau</th>
-                <th>NDVI_pp (ΔNDVI)</th>
-                <th>Lượng mưa (mm)</th>
-                <th>Độ dốc (°)</th>
-                <th>Thao tác</th>
-              </tr>
-            </thead>
-            <tbody id="finnal-tbody"></tbody>
-          </table>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -1499,7 +1474,7 @@
 
       renderActiveRasterLayer();
       buildRasterGallery();
-      populateFinnalTable(data.samples || []);
+      
       querySampleAtLatLon(15.2685, 107.8542);
     }
 
@@ -1526,9 +1501,6 @@
       }
       const opacity = parseFloat(document.getElementById('slider-opacity').value) / 100.0;
       activeRasterOverlay = L.imageOverlay(cfg.url, cfg.bounds, { opacity: opacity, interactive: false }).addTo(map);
-
-      const dlFile = TIF_DOWNLOAD_MAP[currentActiveLayerKey] || 'DuBao_PhuocLoc_XGBoost.tif';
-      document.getElementById('btn-download-tif-pill').href = `/download_tif/${dlFile}`;
 
       updateLegendBox(currentActiveLayerKey, cfg);
     }
@@ -1748,12 +1720,11 @@
       const keys = Object.keys(MANIFEST);
       grid.innerHTML = keys.map(k => {
         const item = MANIFEST[k];
-        const dlFile = TIF_DOWNLOAD_MAP[k] || 'DuBao_PhuocLoc_XGBoost.tif';
         return `
           <div class="geoportal-card">
             <div class="geoportal-card-head">
               <span>${item.short_name}</span>
-              <a href="/download_tif/${dlFile}" class="quick-zoom-btn" style="text-decoration:none;">Tải .TIF</a>
+              
             </div>
             <div class="card-img-preview">
               <img src="${item.url}" alt="${item.short_name}" />
@@ -1765,64 +1736,6 @@
           </div>
         `;
       }).join('');
-    }
-
-    function populateFinnalTable(samples) {
-      const tbody = document.getElementById('finnal-tbody');
-      tbody.innerHTML = samples.map((r, idx) => {
-        const labelText = r.LS === 1
-          ? '<span style="color:#DC2626; font-weight:600;">1 (Sạt lở)</span>'
-          : '<span style="color:#16A34A; font-weight:600;">0 (Không sạt)</span>';
-        return `
-          <tr>
-            <td>#${r.POINTID}</td>
-            <td>${labelText}</td>
-            <td>${Number(r.NDVI_truoc).toFixed(4)}</td>
-            <td>${Number(r.NDVI_sau).toFixed(4)}</td>
-            <td>${Number(r.NDVI_pp).toFixed(4)}</td>
-            <td>${Number(r.rain).toFixed(2)}</td>
-            <td>${Number(r.slope).toFixed(2)}°</td>
-            <td>
-              <button class="quick-zoom-btn" onclick="testRowInWebGIS(${r.NDVI_truoc}, ${r.NDVI_sau}, ${r.rain}, ${r.slope}, ${idx})">
-                Chọn mẫu
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    async function testRowInWebGIS(nPre, nPost, rain, slope, sampleIdx) {
-      document.querySelectorAll('.menu-item-btn')[0].click();
-      const diff = Number(nPost) - Number(nPre);
-      document.getElementById('val-ndvi-pre').innerText = Number(nPre).toFixed(4);
-      document.getElementById('val-ndvi-post').innerText = Number(nPost).toFixed(4);
-      document.getElementById('val-rain').innerText = `${Number(rain).toFixed(2)} mm`;
-      document.getElementById('val-slope').innerText = `${Number(slope).toFixed(2)}°`;
-      document.getElementById('val-ndvi-diff').innerText = (diff >= 0 ? '+' : '') + diff.toFixed(4);
-      if (!IS_STATIC_MODE) {
-        try {
-          const res = await fetch(`/api/predict?ndvi_pre=${nPre}&ndvi_post=${nPost}&rain=${rain}&slope=${slope}&elevation=750`);
-          if (res.ok) {
-            const data = await res.json();
-            renderPredictionUI(data.used_inputs, data.model_probabilities, null);
-            return;
-          }
-        } catch (e) {
-          IS_STATIC_MODE = true;
-        }
-      }
-      const sampleProbs = (STATIC_BUNDLE && STATIC_BUNDLE.samples && STATIC_BUNDLE.samples[sampleIdx] && STATIC_BUNDLE.samples[sampleIdx].probs)
-        ? STATIC_BUNDLE.samples[sampleIdx].probs
-        : { XGBoost: diff < -0.25 ? 0.96 : 0.04, RandomForest: diff < -0.25 ? 0.94 : 0.06, LogisticRegression: diff < -0.25 ? 0.89 : 0.11 };
-      renderPredictionUI({
-        ndvi_pre: Number(nPre).toFixed(4),
-        ndvi_post: Number(nPost).toFixed(4),
-        ndvi_diff: diff.toFixed(4),
-        rain: Number(rain).toFixed(2),
-        slope: Number(slope).toFixed(2),
-        elevation: 750.0
-      }, sampleProbs, null);
     }
 
     window.addEventListener('DOMContentLoaded', initApp);
