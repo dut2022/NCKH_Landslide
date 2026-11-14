@@ -1077,9 +1077,21 @@
             <img src="cache/ndvi_post.png" alt="NDVI Sau" />
             <div class="mini-card-label">NDVI Sau sạt lở ></div>
           </div>
+          <div class="mini-card-thumb" onclick="selectLayer('ndvi_diff')">
+            <img src="cache/ndvi_diff.png" alt="ΔNDVI" />
+            <div class="mini-card-label">Biến động ΔNDVI ></div>
+          </div>
           <div class="mini-card-thumb" onclick="selectLayer('rainfall')">
             <img src="cache/rainfall.png" alt="Lượng mưa" />
             <div class="mini-card-label">Lượng mưa 28/10 ></div>
+          </div>
+          <div class="mini-card-thumb" onclick="selectLayer('slope')">
+            <img src="cache/slope.png" alt="Độ dốc" />
+            <div class="mini-card-label">Độ dốc Slope ></div>
+          </div>
+          <div class="mini-card-thumb" onclick="selectLayer('elevation')" style="grid-column: span 2;">
+            <img src="cache/elevation.png" alt="Độ cao DEM" />
+            <div class="mini-card-label">Độ cao Địa hình DEM 12.5m ></div>
           </div>
         </div>
       </div>
@@ -1560,13 +1572,18 @@
     }
 
     const LAYER_COLORBAR_CONFIG = {
+      "dubao_phuocloc_xgb_5cap": {
+        gradient: "linear-gradient(90deg, #2B83BA 0%, #ABDDA4 25%, #FFFFBF 50%, #FDAE61 75%, #D7191C 100%)",
+        ticks: ["0.00", "0.25", "0.50", "0.75", "1.00"],
+        sub: "<span>0.00 (Rất thấp)</span><span>0.50 (TB)</span><span>1.00 (Rất cao)</span>"
+      },
       "ndvi_pre": {
         gradient: "linear-gradient(90deg, #A50026 0%, #F46D43 25%, #FFFFBF 50%, #66BD63 75%, #006837 100%)",
-        ticks: ["0.00", "0.25", "0.50", "0.75", "1.00"]
+        ticks: ["0.00", "0.23", "0.47", "0.70", "0.93"]
       },
       "ndvi_post": {
         gradient: "linear-gradient(90deg, #A50026 0%, #F46D43 25%, #FFFFBF 50%, #66BD63 75%, #006837 100%)",
-        ticks: ["0.00", "0.25", "0.50", "0.75", "1.00"]
+        ticks: ["0.00", "0.24", "0.49", "0.73", "0.98"]
       },
       "ndvi_diff": {
         gradient: "linear-gradient(90deg, #B40426 0%, #F4987A 35%, #DDDDDD 65%, #88ABFD 85%, #3B4CC0 100%)",
@@ -1588,31 +1605,25 @@
 
     function updateLegendBox(key, cfg) {
       const box = document.getElementById('map-legend');
-      if (cfg.mode === 'discrete5') {
-        box.innerHTML = `
-          <div class="legend-card-head">${cfg.short_name}</div>
-          <div class="legend-row"><span class="legend-swatch" style="background:#D7191C;"></span><span>Rất cao (0.80 – 1.00)</span></div>
-          <div class="legend-row"><span class="legend-swatch" style="background:#FDAE61;"></span><span>Cao (0.60 – 0.80)</span></div>
-          <div class="legend-row"><span class="legend-swatch" style="background:#FFFFBF;"></span><span>Trung bình (0.40 – 0.60)</span></div>
-          <div class="legend-row"><span class="legend-swatch" style="background:#ABDDA4;"></span><span>Thấp (0.20 – 0.40)</span></div>
-          <div class="legend-row"><span class="legend-swatch" style="background:#2B83BA;"></span><span>Rất thấp (0.00 – 0.20)</span></div>
-        `;
-      } else {
-        const cb = LAYER_COLORBAR_CONFIG[key] || {
-          gradient: "linear-gradient(90deg, #F1F5F9, #0F172A)",
-          ticks: [String(cfg.actual_min), String(cfg.actual_max)]
-        };
-        const tickSpans = cb.ticks.map(t => `<span>${t}</span>`).join('');
-        box.innerHTML = `
-          <div class="legend-card-head">${cfg.short_name}</div>
-          <div style="font-size:11px; color:#475569;">Đơn vị: <b>${cfg.unit}</b></div>
-          <div class="cbar-gradient" style="background:${cb.gradient};"></div>
-          <div class="cbar-ticks">${tickSpans}</div>
-          <div style="font-size:10px; color:#94A3B8; border-top:1px solid #E2E8F0; padding-top:4px; margin-top:2px;">
-            Min thực tế: ${cfg.actual_min} · Max thực tế: ${cfg.actual_max}
-          </div>
-        `;
+      const cb = LAYER_COLORBAR_CONFIG[key] || {
+        gradient: "linear-gradient(90deg, #F1F5F9, #0F172A)",
+        ticks: [String(cfg.actual_min), String(cfg.actual_max)]
+      };
+      const tickSpans = cb.ticks.map(t => `<span>${t}</span>`).join('');
+      let subHtml = '';
+      if (cb.sub) {
+        subHtml = `<div style="font-size:9.5px; color:#64748B; margin-top:3px; display:flex; justify-content:space-between;">${cb.sub}</div>`;
       }
+      box.innerHTML = `
+        <div class="legend-card-head">${cfg.short_name}</div>
+        <div style="font-size:11px; color:#475569;">Đơn vị: <b>${cfg.unit}</b></div>
+        <div class="cbar-gradient" style="background:${cb.gradient};"></div>
+        <div class="cbar-ticks">${tickSpans}</div>
+        ${subHtml}
+        <div style="font-size:10px; color:#94A3B8; border-top:1px solid #E2E8F0; padding-top:4px; margin-top:4px;">
+          Min thực tế: ${cfg.actual_min} · Max thực tế: ${cfg.actual_max}
+        </div>
+      `;
     }
 
     async function onMapClick(e) {
