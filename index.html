@@ -49,10 +49,10 @@
     /* 1. TOP NAVBAR (VNPT GEOPORTAL STYLE)                                      */
     /* ========================================================================= */
     .geoportal-navbar {
-      height: 54px;
+      height: 60px;
       background: #FFFFFF;
       border-bottom: 1px solid #E2E8F0;
-      padding: 0 18px;
+      padding: 0 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -63,65 +63,69 @@
     .brand-section {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
     }
     .brand-logo-img {
-      height: 34px;
+      height: 44px;
       width: auto;
-      max-width: 85px;
+      max-width: 120px;
       object-fit: contain;
-      border-radius: 4px;
-      border: 1px solid #E2E8F0;
-      padding: 2px 4px;
+      border-radius: 6px;
+      border: 1px solid #CBD5E1;
+      padding: 2px 5px;
       background: #FFFFFF;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     }
     .brand-text-wrap {
       display: flex;
-      align-items: center;
-      gap: 5px;
+      align-items: baseline;
+      gap: 6px;
     }
     .brand-text-main {
-      font-size: 15px;
+      font-size: 16.5px;
       font-weight: 700;
       color: #0F172A;
       letter-spacing: -0.2px;
     }
     .brand-text-highlight {
-      font-size: 15px;
-      font-weight: 700;
+      font-size: 16.5px;
+      font-weight: 800;
       color: var(--primary);
+      letter-spacing: -0.2px;
     }
     .brand-badge {
-      font-size: 10px;
-      font-weight: 600;
+      font-size: 11px;
+      font-weight: 700;
       color: #0284C7;
       background: #E0F2FE;
-      padding: 2px 6px;
+      padding: 2px 7px;
       border-radius: 4px;
-      margin-left: 2px;
+      margin-left: 4px;
+      align-self: center;
     }
 
     .navbar-menu {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 8px;
       height: 100%;
     }
     .menu-item-btn {
-      height: 36px;
-      padding: 0 15px;
+      height: 40px;
+      padding: 0 18px;
       border: none;
       border-radius: 6px;
       background: transparent;
       font-family: inherit;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-sub);
+      font-size: 15px;
+      font-weight: 600;
+      color: #1E293B;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
       transition: all 0.15s ease;
+      letter-spacing: -0.15px;
     }
     .menu-item-btn:hover {
       background: #F1F5F9;
@@ -130,7 +134,8 @@
     .menu-item-btn.active {
       background: var(--primary-light);
       color: var(--primary);
-      font-weight: 600;
+      font-weight: 700;
+      box-shadow: inset 0 -3px 0 var(--primary);
     }
     .menu-icon {
       font-size: 14px;
@@ -208,7 +213,7 @@
     .tab-viewport {
       display: none;
       flex: 1;
-      height: calc(100vh - 54px);
+      height: calc(100vh - 60px);
       overflow: hidden;
       position: relative;
     }
@@ -395,17 +400,25 @@
     .chk-label {
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 8px;
       cursor: pointer;
       color: #334155;
+      font-size: 12px;
+      user-select: none;
     }
     .chk-label input {
       accent-color: var(--primary);
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
     }
     .swatch-box {
-      width: 12px;
-      height: 12px;
+      width: 13px;
+      height: 13px;
       border-radius: 2px;
+      flex-shrink: 0;
+      box-sizing: border-box;
+      display: inline-block;
     }
 
     /* TOGGLE BUTTON TO RE-OPEN LEFT PANEL */
@@ -946,7 +959,7 @@
           <div class="extra-menu-content" id="menu-vector">
             <label class="chk-label">
               <input type="checkbox" id="chk-boundary" checked onchange="toggleVectorLayers()" />
-              <span style="width: 18px; height: 0px; border-top: 2.5px dashed #D97706; display: inline-block; margin-right: 2px;"></span>
+              <span class="swatch-box" style="border: 2px dashed #D97706; background: rgba(217, 119, 6, 0.18);"></span>
               <span>Ranh giới huyện Phước Sơn</span>
             </label>
             <label class="chk-label">
