@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Phước Sơn Geoportal — Giám sát & Nhận diện Sạt lở Đất</title>
+  <title>Phước Sơn LandSlide — Hệ thống Phát hiện Sạt lở Đất</title>
   <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -78,6 +78,12 @@
     }
     .brand-text-wrap {
       display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1px;
+    }
+    .brand-title-line {
+      display: flex;
       align-items: baseline;
       gap: 6px;
     }
@@ -86,22 +92,21 @@
       font-weight: 700;
       color: #0F172A;
       letter-spacing: -0.2px;
+      line-height: 1.2;
     }
     .brand-text-highlight {
       font-size: 16.5px;
       font-weight: 800;
       color: var(--primary);
       letter-spacing: -0.2px;
+      line-height: 1.2;
     }
-    .brand-badge {
-      font-size: 11px;
-      font-weight: 700;
-      color: #0284C7;
-      background: #E0F2FE;
-      padding: 2px 7px;
-      border-radius: 4px;
-      margin-left: 4px;
-      align-self: center;
+    .brand-subtitle {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: #64748B;
+      letter-spacing: 0.1px;
+      line-height: 1.2;
     }
 
     .navbar-menu {
@@ -840,9 +845,11 @@
     <div class="brand-section">
       <img src="cache/logo_dttm.png" alt="DTTM Smart City Logo" class="brand-logo-img" />
       <div class="brand-text-wrap">
-        <span class="brand-text-main">Phước Sơn</span>
-        <span class="brand-text-highlight">Geoportal</span>
-        <span class="brand-badge">S2 · ML</span>
+        <div class="brand-title-line">
+          <span class="brand-text-main">Phước Sơn</span>
+          <span class="brand-text-highlight">LandSlide</span>
+        </div>
+        <div class="brand-subtitle">Hệ thống phát hiện sạt lở đất</div>
       </div>
     </div>
 
