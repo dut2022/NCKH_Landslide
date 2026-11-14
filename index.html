@@ -849,10 +849,6 @@
     </nav>
 
     <div class="navbar-actions">
-      <div class="search-box-pill">
-        
-        <input type="text" placeholder="Tìm kiếm địa điểm, tọa độ..." onkeydown="handleSearch(event)" />
-      </div>
       <button class="quick-zoom-btn" onclick="zoomToPhuocLoc()">Phước Lộc</button>
       <button class="quick-zoom-btn" onclick="zoomToPhuocSon()">Phước Sơn</button>
       <a href="https://github.com/dut2022/NCKH_Landslide" target="_blank" class="avatar-btn" title="Xem GitHub">
@@ -950,7 +946,7 @@
           <div class="extra-menu-content" id="menu-vector">
             <label class="chk-label">
               <input type="checkbox" id="chk-boundary" checked onchange="toggleVectorLayers()" />
-              <span class="swatch-box" style="border:2px solid #D97706; background:transparent;"></span>
+              <span style="width: 18px; height: 0px; border-top: 2.5px dashed #D97706; display: inline-block; margin-right: 2px;"></span>
               <span>Ranh giới huyện Phước Sơn</span>
             </label>
             <label class="chk-label">
@@ -1477,7 +1473,7 @@
 
       if (data.boundary && data.boundary.features) {
         boundaryLayer = L.geoJSON(data.boundary, {
-          style: { color: '#F59E0B', weight: 2, fillOpacity: 0.0, dashArray: '5, 4' }
+          style: { color: '#D97706', weight: 2.5, fillOpacity: 0.0, dashArray: '6, 6' }
         }).addTo(map);
       }
 
