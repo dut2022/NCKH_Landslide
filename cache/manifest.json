@@ -1,0 +1,184 @@
+{
+  "dubao_phuocloc_xgb_5cap": {
+    "key": "dubao_phuocloc_xgb_5cap",
+    "name": "1. Bản đồ Dự báo Sạt lở Mới nhất - XGBoost (DuBao_PhuocLoc_XGBoost.tif)",
+    "short_name": "1. Bản đồ Dự báo Sạt lở Mới nhất (XGBoost)",
+    "unit": "Xác suất sạt lở (5 cấp nguy cơ)",
+    "mode": "discrete5",
+    "vmin": 0.0,
+    "vmax": 1.0,
+    "actual_min": 0.0003,
+    "actual_max": 0.9995,
+    "actual_mean": 0.1655,
+    "bounds": [
+      [
+        15.193562674236,
+        107.796615584236
+      ],
+      [
+        15.332262553468,
+        107.9145643805
+      ]
+    ],
+    "width": 1313,
+    "height": 1544,
+    "crs": "EPSG:4326",
+    "url": "cache/dubao_phuocloc_xgb_5cap.png?v=4"
+  },
+  "ndvi_pre": {
+    "key": "ndvi_pre",
+    "name": "2. Bản đồ NDVI Trước sạt lở 06–08/2020 - Cắt ranh giới Phước Sơn (NDVI_PhuocSon_Truoc_Clipped.tif)",
+    "short_name": "2. NDVI Trước sạt lở (06–08/2020 - Phước Sơn)",
+    "unit": "Chỉ số NDVI_pre (0.0 – 1.0)",
+    "mode": "continuous",
+    "vmin": 0.0,
+    "vmax": 1.0,
+    "actual_min": 0.0,
+    "actual_max": 0.9346,
+    "actual_mean": 0.8266,
+    "bounds": [
+      [
+        15.192936905728232,
+        107.659673203645
+      ],
+      [
+        15.581368434581513,
+        108.02331123065659
+      ]
+    ],
+    "width": 4048,
+    "height": 4324,
+    "crs": "EPSG:4326",
+    "url": "cache/ndvi_pre.png?v=4"
+  },
+  "ndvi_post": {
+    "key": "ndvi_post",
+    "name": "3. Bản đồ NDVI Sau sạt lở 10/2020–02/2021 - Cắt ranh giới Phước Sơn (NDVI_PhuocSon_Sau_Clipped.tif)",
+    "short_name": "3. NDVI Sau sạt lở (10/2020–02/2021 - Phước Sơn)",
+    "unit": "Chỉ số NDVI_post (0.0 – 1.0)",
+    "mode": "continuous",
+    "vmin": 0.0,
+    "vmax": 1.0,
+    "actual_min": 0.0,
+    "actual_max": 0.9754,
+    "actual_mean": 0.8043,
+    "bounds": [
+      [
+        15.192936905728232,
+        107.659673203645
+      ],
+      [
+        15.581368434581513,
+        108.02331123065659
+      ]
+    ],
+    "width": 4048,
+    "height": 4324,
+    "crs": "EPSG:4326",
+    "url": "cache/ndvi_post.png?v=4"
+  },
+  "ndvi_diff": {
+    "key": "ndvi_diff",
+    "name": "4. Bản đồ Suy giảm Thực vật ΔNDVI = NDVI_sau - NDVI_truoc (NDVI_Diff_PhuocSon_GEE.tif)",
+    "short_name": "4. Biến động Thực vật ΔNDVI (Phước Sơn)",
+    "unit": "Chênh lệch NDVI_diff",
+    "mode": "continuous",
+    "vmin": -0.65,
+    "vmax": 0.2,
+    "actual_min": -1.2977,
+    "actual_max": 1.0119,
+    "actual_mean": -0.0227,
+    "bounds": [
+      [
+        15.192936905728232,
+        107.659673203645
+      ],
+      [
+        15.581368434581513,
+        108.02331123065659
+      ]
+    ],
+    "width": 4048,
+    "height": 4324,
+    "crs": "EPSG:4326",
+    "url": "cache/ndvi_diff.png?v=4"
+  },
+  "rainfall": {
+    "key": "rainfall",
+    "name": "5. Bản đồ Lượng mưa kích hoạt ngày 28/10/2020 (rainfall_1day_10m_ps.tif)",
+    "short_name": "5. Lượng mưa ngày 28/10/2020 (mm)",
+    "unit": "Lượng mưa (mm/ngày)",
+    "mode": "continuous",
+    "vmin": 95.0,
+    "vmax": 456.0,
+    "actual_min": 95.0002,
+    "actual_max": 455.9997,
+    "actual_mean": 318.1517,
+    "bounds": [
+      [
+        15.192995133970552,
+        107.65474356231881
+      ],
+      [
+        15.581253986189772,
+        108.02892189419067
+      ]
+    ],
+    "width": 3963,
+    "height": 4352,
+    "crs": "EPSG:32648",
+    "url": "cache/rainfall.png?v=4"
+  },
+  "slope": {
+    "key": "slope",
+    "name": "6. Bản đồ Độ dốc Địa hình - Slope (slope.tif)",
+    "short_name": "6. Độ dốc Địa hình Slope (°)",
+    "unit": "Độ dốc (°)",
+    "mode": "continuous",
+    "vmin": 0.0,
+    "vmax": 55.0,
+    "actual_min": 0.0,
+    "actual_max": 77.3408,
+    "actual_mean": 20.155,
+    "bounds": [
+      [
+        15.193015294558904,
+        107.65468048427311
+      ],
+      [
+        15.581318444133585,
+        108.02892927979411
+      ]
+    ],
+    "width": 3171,
+    "height": 3482,
+    "crs": "EPSG:32648",
+    "url": "cache/slope.png?v=4"
+  },
+  "elevation": {
+    "key": "elevation",
+    "name": "7. Bản đồ Độ cao Địa hình DEM ALOS PALSAR 12.5m (Elevation.tif)",
+    "short_name": "7. Độ cao Địa hình DEM (m)",
+    "unit": "Độ cao (m)",
+    "mode": "continuous",
+    "vmin": 35.0,
+    "vmax": 2050.0,
+    "actual_min": 19.0,
+    "actual_max": 2094.0,
+    "actual_mean": 628.85,
+    "bounds": [
+      [
+        15.193015294558904,
+        107.65468048427311
+      ],
+      [
+        15.581318444133585,
+        108.02892927979411
+      ]
+    ],
+    "width": 3171,
+    "height": 3482,
+    "crs": "EPSG:32648",
+    "url": "cache/elevation.png?v=4"
+  }
+}

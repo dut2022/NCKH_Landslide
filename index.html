@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phuoc Son Landslide WebGIS — Sentinel-2 & Ensemble ML</title>
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-app: #F8FAFC;
+      --bg-surface: #FFFFFF;
+      --bg-subtle: #F1F5F9;
+      --border: #E2E8F0;
+      --border-strong: #CBD5E1;
+      --text-primary: #0F172A;
+      --text-secondary: #475569;
+      --text-muted: #64748B;
+      --accent: #0F172A;
+      --brand: #2563EB;
+      --brand-hover: #1D4ED8;
+      --danger: #DC2626;
+      --danger-bg: #FEF2F2;
+      --danger-border: #FECACA;
+      --success: #16A34A;
+      --success-bg: #F0FDF4;
+      --success-border: #BBF7D0;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-primary);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      height: 54px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand-mark {
+      background: #0F172A;
+      color: #FFFFFF;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+    .brand-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.2px;
+    }
+    .brand-divider {
+      width: 1px;
+      height: 18px;
+      background: var(--border);
+    }
+    .brand-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* NAVIGATION */
+    .nav-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 100%;
+    }
+    .tab-btn {
+      height: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 0 14px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tab-btn:hover {
+      color: var(--text-primary);
+    }
+    .tab-btn.active {
+      color: var(--brand);
+      border-bottom-color: var(--brand);
+      font-weight: 600;
+    }
+
+    /* METRIC SUMMARY PILLS */
+    .meta-strip {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 11.5px;
+      color: var(--text-secondary);
+    }
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .meta-item strong {
+      font-family: var(--mono);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* VIEWPORT */
+    .tab-content {
+      display: none;
+      flex: 1;
+      overflow: hidden;
+    }
+    .tab-content.active {
+      display: flex;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 390px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+    .panel-section {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-secondary);
+    }
+
+    /* CONTROLS */
+    .field-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    select, input[type="number"], input[type="text"] {
+      width: 100%;
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 12.5px;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    input[type="number"], .mono-input {
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--brand);
+    }
+
+    .range-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .range-row label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      min-width: 105px;
+    }
+    .range-row input[type="range"] {
+      flex: 1;
+      accent-color: var(--brand);
+      cursor: pointer;
+    }
+    .range-val {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+      width: 38px;
+      text-align: right;
+    }
+
+    /* VECTOR CHECKBOXES */
+    .layer-toggles {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+    .toggle-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .toggle-left input[type="checkbox"] {
+      accent-color: var(--brand);
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+    }
+    .swatch-line {
+      width: 14px;
+      height: 3px;
+      border-radius: 1px;
+      display: inline-block;
+    }
+    .swatch-box {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+    .badge-count {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--bg-subtle);
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+
+    /* BUTTONS */
+    .btn-group {
+      display: flex;
+      gap: 6px;
+      margin-top: 12px;
+    }
+    .btn {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .btn:hover {
+      background: var(--bg-subtle);
+      border-color: #94A3B8;
+    }
+    .btn-primary {
+      background: var(--brand);
+      color: #FFFFFF;
+      border-color: var(--brand);
+    }
+    .btn-primary:hover {
+      background: var(--brand-hover);
+      border-color: var(--brand-hover);
+    }
+    .btn-sm {
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+
+    /* INSPECTOR COORD BOX */
+    .coord-bar {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+    /* READ-ONLY PIXEL DISPLAY GRID */
+    .readonly-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .readonly-box {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+    .readonly-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+      display: block;
+    }
+    .readonly-value {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* COLORBAR IN LEGEND */
+    .cbar-gradient {
+      width: 100%;
+      height: 14px;
+      border-radius: 3px;
+      border: 1px solid rgba(15, 23, 42, 0.25);
+      margin: 6px 0 4px 0;
+    }
+    .cbar-ticks {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    /* PREDICTION RESULT CARD */
+    .result-card {
+      margin-top: 14px;
+      border-radius: 6px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+    }
+    .result-card.is-landslide {
+      background: var(--danger-bg);
+      border-color: var(--danger-border);
+    }
+    .result-card.is-safe {
+      background: var(--success-bg);
+      border-color: var(--success-border);
+    }
+    .result-status {
+      font-size: 12.5px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .result-card.is-landslide .result-status { color: var(--danger); }
+    .result-card.is-safe .result-status { color: var(--success); }
+    .result-meta {
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* 3-MODEL COMPARISON BARS */
+    .model-list {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .model-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+    }
+    .model-label {
+      width: 105px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .model-track {
+      flex: 1;
+      height: 7px;
+      background: var(--bg-subtle);
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .model-fill {
+      height: 100%;
+      transition: width 0.25s ease;
+    }
+    .model-pct {
+      width: 48px;
+      text-align: right;
+      font-family: var(--mono);
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+
+    /* MAP CONTAINER */
+    .map-workspace {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    #map {
+      flex: 1;
+      width: 100%;
+      background: #E2E8F0;
+    }
+
+    /* FLOATING STATUS & HISTORICAL SLIDER (GOOGLE EARTH PRO STYLE) */
+    .map-overlay-top {
+      position: absolute;
+      top: 12px;
+      left: 54px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .ge-slider-panel {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(6px);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      padding: 8px 12px;
+      width: 460px;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+    }
+    .ge-slider-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .ge-date-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--brand);
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      padding: 1px 7px;
+      border-radius: 4px;
+    }
+    .ge-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ge-nav-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      color: var(--text-primary);
+      border-radius: 4px;
+      width: 24px;
+      height: 22px;
+      font-size: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ge-nav-btn:hover { background: var(--bg-subtle); }
+    .ge-track-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .ge-track-wrap input[type="range"] {
+      width: 100%;
+      accent-color: var(--brand);
+      height: 5px;
+      cursor: pointer;
+    }
+    .ge-tick-labels {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .ge-tick-labels span {
+      cursor: pointer;
+    }
+    .ge-tick-labels span.active-tick {
+      color: var(--brand);
+      font-weight: 700;
+    }
+
+    /* FLOATING LEGEND */
+    .map-legend-card {
+      position: absolute;
+      bottom: 24px;
+      right: 16px;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(6px);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      padding: 12px 14px;
+      min-width: 220px;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+    }
+    .legend-head {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 5px;
+    }
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11.5px;
+      color: var(--text-primary);
+      margin-bottom: 5px;
+    }
+    .legend-color {
+      width: 16px;
+      height: 11px;
+      border-radius: 2px;
+      border: 1px solid rgba(0,0,0,0.15);
+      flex-shrink: 0;
+    }
+
+    /* SCROLLABLE PAGE CONTENT */
+    .page-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 32px;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .page-header {
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .page-header h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .page-header p {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* CARDS & GRIDS */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+    .surface-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .surface-card-head {
+      padding: 10px 14px;
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border);
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .surface-card-body {
+      padding: 14px;
+      background: var(--bg-surface);
+      flex: 1;
+    }
+    .raster-preview {
+      height: 260px;
+      background: #F8FAFC;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+    .raster-preview img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .surface-card-foot {
+      padding: 8px 14px;
+      border-top: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      background: var(--bg-surface);
+    }
+
+    /* SCIENTIFIC TABLE */
+    table.sci-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      background: var(--bg-surface);
+    }
+    table.sci-table th {
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      padding: 10px 12px;
+      border-bottom: 2px solid var(--border-strong);
+      text-align: right;
+    }
+    table.sci-table th:first-child,
+    table.sci-table th:nth-child(2) {
+      text-align: left;
+    }
+    table.sci-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: right;
+      font-family: var(--mono);
+      color: var(--text-primary);
+    }
+    table.sci-table td:first-child {
+      font-family: 'Inter', sans-serif;
+      text-align: left;
+      font-weight: 600;
+    }
+    table.sci-table td:nth-child(2) {
+      font-family: 'Inter', sans-serif;
+      text-align: left;
+      color: var(--text-secondary);
+    }
+    table.sci-table tr:hover {
+      background: #F8FAFC;
+    }
+    table.sci-table tr.row-best {
+      background: #EFF6FF;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP HEADER & NAVIGATION -->
+  <header class="topbar">
+    <div class="brand-group">
+      <span class="brand-mark">GIS · S2</span>
+      <span class="brand-title">Phuoc Son Landslide Susceptibility System</span>
+      <span class="brand-divider"></span>
+      <span class="brand-subtitle">Sentinel-2 GEE (10m) · ALOS PALSAR DEM · Ensemble ML</span>
+    </div>
+
+    <nav class="nav-group">
+      <button class="tab-btn active" onclick="switchTab('tab-webgis', this)">
+        1. Bản đồ WebGIS & Truy vấn Mô hình
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-rasters', this)">
+        2. Dữ liệu Bản đồ GeoTIFF (7 Lớp)
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-models', this)">
+        3. Đánh giá 3 Mô hình (LR, RF, XGBoost)
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-validation', this)">
+        4. Kiểm chứng Thực địa (Hình 14 & 15)
+      </button>
+    </nav>
+
+    <div class="meta-strip">
+      <div class="meta-item">Diện tích: <strong>1,142 km²</strong></div>
+      <div class="meta-item">Mẫu huấn luyện: <strong>4,050 px</strong></div>
+      <div class="meta-item">XGBoost AUC: <strong>0.9997</strong></div>
+    </div>
+  </header>
+
+  <!-- ======================================================================= -->
+  <!-- TAB 1: WEBGIS WORKSPACE                                                 -->
+  <!-- ======================================================================= -->
+  <section id="tab-webgis" class="tab-content active">
+    <aside class="sidebar">
+      <!-- LỚP BẢN ĐỒ RASTER -->
+      <div class="panel-section">
+        <div class="section-head">
+          <span class="section-title">1. Lớp Bản đồ GeoTIFF & Nền Vệ tinh</span>
+          <a id="btn-download-active-tif" href="/download_tif/DuBao_PhuocLoc_XGBoost.tif" class="btn btn-sm">Tải file .TIF</a>
+        </div>
+
+        <label class="field-label">Lớp chuyên đề GeoTIFF (.tif):</label>
+        <select id="select-main-layer" onchange="updateMainRasterLayer()">
+          <option value="dubao_phuocloc_xgb_5cap" selected>1. Bản đồ Dự báo Sạt lở Mới nhất — XGBoost (DuBao_PhuocLoc_XGBoost.tif)</option>
+          <option value="ndvi_pre">2. Chỉ số Thực vật Trước sạt lở 06–08/2020 (NDVI_pre — Phước Sơn)</option>
+          <option value="ndvi_post">3. Chỉ số Thực vật Sau sạt lở 10/2020–02/2021 (NDVI_post — Phước Sơn)</option>
+          <option value="ndvi_diff">4. Độ suy giảm Thực vật ΔNDVI = NDVI_sau - NDVI_truoc (Phước Sơn)</option>
+          <option value="rainfall">5. Lượng mưa kích hoạt ngày 28/10/2020 (rainfall_1day_10m_ps.tif)</option>
+          <option value="slope">6. Độ dốc địa hình — Slope (slope.tif)</option>
+          <option value="elevation">7. Độ cao địa hình DEM ALOS PALSAR 12.5m (Elevation.tif)</option>
+        </select>
+
+        <div class="range-row">
+          <label>Độ hiển thị .TIF:</label>
+          <input type="range" id="slider-opacity" min="0" max="100" value="85" oninput="updateOpacity(this.value)" />
+          <span class="range-val" id="lbl-opacity">85%</span>
+        </div>
+
+        <div class="layer-toggles">
+          <label class="toggle-row">
+            <span class="toggle-left">
+              <input type="checkbox" id="chk-boundary" checked onchange="toggleVectorLayers()" />
+              <span class="swatch-line" style="background:#D97706;"></span>
+              <span>Ranh giới hành chính huyện Phước Sơn</span>
+            </span>
+            <span class="badge-count">SHP</span>
+          </label>
+          <label class="toggle-row">
+            <span class="toggle-left">
+              <input type="checkbox" id="chk-satlo" checked onchange="toggleVectorLayers()" />
+              <span class="swatch-box" style="border:2px solid #DC2626; background:rgba(220,38,38,0.2);"></span>
+              <span>Vị trí Sạt lở kiểm kê (LS = 1)</span>
+            </span>
+            <span class="badge-count">12 vùng · 2,033 px</span>
+          </label>
+          <label class="toggle-row">
+            <span class="toggle-left">
+              <input type="checkbox" id="chk-kosatlo" checked onchange="toggleVectorLayers()" />
+              <span class="swatch-box" style="border:2px dashed #0284C7; background:rgba(2,132,199,0.15);"></span>
+              <span>Vị trí Không sạt lở kiểm kê (LS = 0)</span>
+            </span>
+            <span class="badge-count">14 vùng · 2,017 px</span>
+          </label>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn" style="flex:1;" onclick="zoomToPhuocLoc()">Vùng dự báo Phước Lộc</button>
+          <button class="btn" style="flex:1;" onclick="zoomToPhuocSon()">Toàn huyện Phước Sơn</button>
+        </div>
+      </div>
+
+      <!-- TRUY VẤN PIXEL & CHẠY 3 MÔ HÌNH (CHỈ HIỂN THỊ KHI CLICK BẢN ĐỒ) -->
+      <div class="panel-section" style="border-bottom:none;">
+        <div class="section-head">
+          <span class="section-title">2. Truy vấn Pixel & Dự báo (LR, RF, XGBoost)</span>
+          <span style="font-size:11px; color:var(--text-muted);">Click bản đồ để xem</span>
+        </div>
+
+        <div class="coord-bar" id="coord-pill">
+          <span>WGS84: 15.2685°N, 107.8542°E</span>
+          <span>UTM 48N</span>
+        </div>
+
+        <div class="readonly-grid">
+          <div class="readonly-box">
+            <span class="readonly-label">NDVI Trước sạt lở</span>
+            <div class="readonly-value" id="val-ndvi-pre">0.8350</div>
+          </div>
+          <div class="readonly-box">
+            <span class="readonly-label">NDVI Sau sạt lở</span>
+            <div class="readonly-value" id="val-ndvi-post">0.1450</div>
+          </div>
+          <div class="readonly-box">
+            <span class="readonly-label">Lượng mưa 28/10 (mm)</span>
+            <div class="readonly-value" id="val-rain">382.50</div>
+          </div>
+          <div class="readonly-box">
+            <span class="readonly-label">Độ dốc Slope (°)</span>
+            <div class="readonly-value" id="val-slope">28.40°</div>
+          </div>
+          <div class="readonly-box">
+            <span class="readonly-label">Độ cao DEM (m)</span>
+            <div class="readonly-value" id="val-elev">845.0 m</div>
+          </div>
+          <div class="readonly-box">
+            <span class="readonly-label">Chênh lệch ΔNDVI</span>
+            <div class="readonly-value" id="val-ndvi-diff" style="color:var(--brand);">-0.6900</div>
+          </div>
+        </div>
+
+        <div id="pred-banner" class="result-card is-landslide">
+          <div id="pred-title" class="result-status">Đang tính toán...</div>
+          <div id="pred-sub" class="result-meta"></div>
+        </div>
+
+        <div class="model-list" id="model-bars"></div>
+      </div>
+    </aside>
+
+    <!-- MAP VIEWPORT -->
+    <div class="map-workspace">
+      <div id="map"></div>
+      <div class="map-legend-card" id="map-legend"></div>
+    </div>
+  </section>
+
+  <!-- ======================================================================= -->
+  <!-- TAB 2: 7 GEOTIFF RASTER LAYERS                                          -->
+  <!-- ======================================================================= -->
+  <section id="tab-rasters" class="tab-content">
+    <div class="page-container">
+      <div class="page-header">
+        <div>
+          <h2>Dữ liệu Bản đồ Raster GeoTIFF (.TIF)</h2>
+          <p>Bao gồm 1 bản đồ dự báo sạt lở mới nhất tại Phước Lộc (XGBoost) và 6 lớp dữ liệu đầu vào đã cắt chuẩn theo ranh giới huyện Phước Sơn.</p>
+        </div>
+      </div>
+      <div class="grid-3" id="raster-gallery-grid"></div>
+    </div>
+  </section>
+
+  <!-- ======================================================================= -->
+  <!-- TAB 3: 3 MACHINE LEARNING MODELS (LR, RF, XGBOOST)                      -->
+  <!-- ======================================================================= -->
+  <section id="tab-models" class="tab-content">
+    <div class="page-container">
+      <div class="page-header">
+        <div>
+          <h2>Kết quả Huấn luyện & Kiểm định 3 Mô hình Học máy (LR, RF, XGBoost)</h2>
+          <p>Đánh giá trên bộ dữ liệu chuẩn Finnal.csv (4,050 pixels: 2,033 pixels sạt lở và 2,017 pixels không sạt lở; tỷ lệ Train 80% / Test 20%).</p>
+        </div>
+      </div>
+
+      <div class="surface-card" style="margin-bottom:20px;">
+        <table class="sci-table">
+          <thead>
+            <tr>
+              <th>Mô hình (Model)</th>
+              <th>Phân tập (Split)</th>
+              <th>TP</th>
+              <th>FP</th>
+              <th>TN</th>
+              <th>FN</th>
+              <th>Accuracy</th>
+              <th>Kappa</th>
+              <th>Sensitivity</th>
+              <th>Specificity</th>
+              <th>AUC</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-best">
+              <td>XGBoost model</td>
+              <td>Testing (810 px)</td>
+              <td>401</td>
+              <td>1</td>
+              <td>402</td>
+              <td>6</td>
+              <td>0.9914</td>
+              <td>0.9827</td>
+              <td>0.9853</td>
+              <td>0.9975</td>
+              <td><strong>0.9997</strong></td>
+            </tr>
+            <tr>
+              <td>XGBoost model</td>
+              <td>Training (3,240 px)</td>
+              <td>1,621</td>
+              <td>4</td>
+              <td>1,610</td>
+              <td>5</td>
+              <td>0.9972</td>
+              <td>0.9944</td>
+              <td>0.9969</td>
+              <td>0.9975</td>
+              <td>1.0000</td>
+            </tr>
+            <tr class="row-best">
+              <td>RF model (Random Forest)</td>
+              <td>Testing (810 px)</td>
+              <td>401</td>
+              <td>3</td>
+              <td>400</td>
+              <td>6</td>
+              <td>0.9889</td>
+              <td>0.9778</td>
+              <td>0.9853</td>
+              <td>0.9926</td>
+              <td><strong>0.9994</strong></td>
+            </tr>
+            <tr>
+              <td>RF model (Random Forest)</td>
+              <td>Training (3,240 px)</td>
+              <td>1,622</td>
+              <td>9</td>
+              <td>1,605</td>
+              <td>4</td>
+              <td>0.9960</td>
+              <td>0.9920</td>
+              <td>0.9975</td>
+              <td>0.9944</td>
+              <td>1.0000</td>
+            </tr>
+            <tr class="row-best">
+              <td>LR model (Logistic Regression)</td>
+              <td>Testing (810 px)</td>
+              <td>391</td>
+              <td>26</td>
+              <td>377</td>
+              <td>16</td>
+              <td>0.9481</td>
+              <td>0.8963</td>
+              <td>0.9607</td>
+              <td>0.9355</td>
+              <td><strong>0.9885</strong></td>
+            </tr>
+            <tr>
+              <td>LR model (Logistic Regression)</td>
+              <td>Training (3,240 px)</td>
+              <td>1,517</td>
+              <td>130</td>
+              <td>1,484</td>
+              <td>109</td>
+              <td>0.9262</td>
+              <td>0.8525</td>
+              <td>0.9330</td>
+              <td>0.9195</td>
+              <td>0.9850</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:20px;">
+        <div class="surface-card">
+          <div class="surface-card-head"><span>Đường cong ROC (LR model, RF model, XGBoost model)</span></div>
+          <div class="surface-card-body" style="text-align:center;">
+            <img src="ketqua_img/ROC_3_Models_In_One.png" style="max-width:100%; max-height:400px;" />
+          </div>
+        </div>
+        <div class="surface-card">
+          <div class="surface-card-head"><span>Phân bố Tỷ lệ Diện tích 5 Cấp độ Nguy cơ Sạt lở</span></div>
+          <div class="surface-card-body" style="text-align:center;">
+            <img src="ketqua_img/PhuocLoc/BieuDo_CapDoSatLo_13_5.png" style="max-width:100%; max-height:400px;" />
+          </div>
+        </div>
+      </div>
+
+      <div class="surface-card">
+        <div class="surface-card-head">
+          <span>Trích xuất Dữ liệu Mẫu từ Finnal.csv (Chọn mẫu để nạp sang Bản đồ)</span>
+        </div>
+        <div style="max-height:280px; overflow-y:auto;">
+          <table class="sci-table" id="finnal-sample-table">
+            <thead>
+              <tr>
+                <th>POINTID</th>
+                <th>Nhãn thực tế (LS)</th>
+                <th>NDVI_truoc</th>
+                <th>NDVI_sau</th>
+                <th>NDVI_pp (ΔNDVI)</th>
+                <th>Lượng mưa (mm)</th>
+                <th>Độ dốc (°)</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="finnal-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================= -->
+  <!-- TAB 4: FIELD VALIDATION (FIG 14 & FIG 15 ONLY)                          -->
+  <!-- ======================================================================= -->
+  <section id="tab-validation" class="tab-content">
+    <div class="page-container">
+      <div class="page-header">
+        <div>
+          <h2>Kiểm chứng Khả năng Phân biệt Sạt lở Đất với Hoạt động Nhân sinh (Hình 14 & Hình 15)</h2>
+          <p>Đối chiếu kết quả dự báo của mô hình XGBoost với ảnh vệ tinh Google Earth để kiểm chứng khả năng loại trừ các vùng suy giảm NDVI do phá rừng hoặc xây dựng công trình.</p>
+        </div>
+      </div>
+
+      <!-- FIG 14 -->
+      <div class="surface-card" style="margin-bottom:20px;">
+        <div class="surface-card-head">
+          <span>Kịch bản 1 (Hình 14 — 15°16'22.91"N, 107°50'32.23"E): Khu vực mất thảm thực vật do Khai thác rừng / Phá rừng</span>
+        </div>
+        <div class="surface-card-body">
+          <div class="grid-3">
+            <div>
+              <div class="field-unit" style="font-weight:600; color:var(--text-primary); margin-bottom:6px;">(a) Ảnh vệ tinh Google Earth (01/10/2021)</div>
+              <img src="ketqua_img/PhuocLoc/Fig14/a_VeTinh.png" style="width:100%; border-radius:4px; border:1px solid var(--border);" />
+            </div>
+            <div>
+              <div class="field-unit" style="font-weight:600; color:var(--text-primary); margin-bottom:6px;">(b) Kết quả dự báo XGBoost (Không báo nhầm sạt lở)</div>
+              <img src="ketqua_img/PhuocLoc/Fig14/b_DuDoan.png" style="width:100%; border-radius:4px; border:1px solid var(--border);" />
+            </div>
+            <div>
+              <div class="field-unit" style="font-weight:600; color:var(--text-primary); margin-bottom:6px;">(c) Bản đồ NDVI sau sự kiện (Suy giảm thực vật)</div>
+              <img src="ketqua_img/PhuocLoc/Fig14/c_SauSK_SatLo.png" style="width:100%; border-radius:4px; border:1px solid var(--border);" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FIG 15 -->
+      <div class="surface-card">
+        <div class="surface-card-head">
+          <span>Kịch bản 2 (Hình 15 — 15°16'32.37"N, 107°51'4.36"E): Khu vực mất thảm thực vật do San ủi Xây dựng công trình</span>
+        </div>
+        <div class="surface-card-body">
+          <div class="grid-3">
+            <div>
+              <div class="field-unit" style="font-weight:600; color:var(--text-primary); margin-bottom:6px;">(a) Ảnh vệ tinh Google Earth (01/10/2021)</div>
+              <img src="ketqua_img/PhuocLoc/Fig15/a_VeTinh.png" style="width:100%; border-radius:4px; border:1px solid var(--border);" />
+            </div>
+            <div>
+              <div class="field-unit" style="font-weight:600; color:var(--text-primary); margin-bottom:6px;">(b) Kết quả dự báo XGBoost (Không báo nhầm sạt lở)</div>
+              <img src="ketqua_img/PhuocLoc/Fig15/b_DuDoan.png" style="width:100%; border-radius:4px; border:1px solid var(--border);" />
+            </div>
+            <div>
+              <div class="field-unit" style="font-weight:600; color:var(--text-primary); margin-bottom:6px;">(c) Bản đồ NDVI sau sự kiện (Suy giảm thực vật)</div>
+              <img src="ketqua_img/PhuocLoc/Fig15/c_SauSK_SatLo.png" style="width:100%; border-radius:4px; border:1px solid var(--border);" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    let map;
+    let activeBaseTileLayer = null;
+    let activeRasterOverlay = null;
+    let boundaryLayer = null;
+    let satloLayer = null;
+    let kosatloLayer = null;
+    let clickMarker = null;
+    let MANIFEST = {};
+    let STATIC_BUNDLE = null;
+    let IS_STATIC_MODE = false;
+
+    function lonLatToUtm48(lon, lat) {
+      // Approximate WGS84 to UTM Zone 48N (central meridian 105°E) for display
+      const a = 6378137.0, f = 1 / 298.257223563, k0 = 0.9996;
+      const e2 = 2 * f - f * f;
+      const phi = lat * Math.PI / 180.0;
+      const lam = (lon - 105.0) * Math.PI / 180.0;
+      const N = a / Math.sqrt(1 - e2 * Math.sin(phi) * Math.sin(phi));
+      const T = Math.tan(phi) * Math.tan(phi);
+      const C = (e2 / (1 - e2)) * Math.cos(phi) * Math.cos(phi);
+      const A = Math.cos(phi) * lam;
+      const M = a * ((1 - e2 / 4 - 3 * e2 * e2 / 64) * phi - (3 * e2 / 8 + 3 * e2 * e2 / 32) * Math.sin(2 * phi) + (15 * e2 * e2 / 256) * Math.sin(4 * phi));
+      const x = 500000.0 + k0 * N * (A + (1 - T + C) * Math.pow(A, 3) / 6);
+      const y = k0 * (M + N * Math.tan(phi) * (A * A / 2 + (5 - T + 9 * C + 4 * C * C) * Math.pow(A, 4) / 24));
+      return [Math.round(x * 10) / 10, Math.round(y * 10) / 10];
+    }
+
+    function lookupStaticGrid(grid, lat, lon) {
+      if (!grid) return null;
+      if (lat < grid.lat_min || lat > grid.lat_max || lon < grid.lon_min || lon > grid.lon_max) return null;
+      const r = Math.min(grid.ny - 1, Math.max(0, Math.round((lat - grid.lat_min) / (grid.lat_max - grid.lat_min) * (grid.ny - 1))));
+      const c = Math.min(grid.nx - 1, Math.max(0, Math.round((lon - grid.lon_min) / (grid.lon_max - grid.lon_min) * (grid.nx - 1))));
+      return grid.cells[r * grid.nx + c];
+    }
+
+    const SAT_TIMELINE_STEPS = [
+      {
+        idx: 0,
+        short: "02/2014 (Rừng nguyên sinh)",
+        url: "https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/10/{z}/{y}/{x}"
+      },
+      {
+        idx: 1,
+        short: "03/2017 (Trước thiên tai)",
+        url: "https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/5205/{z}/{y}/{x}"
+      },
+      {
+        idx: 2,
+        short: "10/2019 (Trước bão 1 năm)",
+        url: "https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/11351/{z}/{y}/{x}"
+      },
+      {
+        idx: 3,
+        short: "09/2020 (Trước sạt lở)",
+        url: "https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/9181/{z}/{y}/{x}"
+      },
+      {
+        idx: 4,
+        short: "10/2021 (Sau sạt lở)",
+        url: "https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/16749/{z}/{y}/{x}"
+      },
+      {
+        idx: 5,
+        short: "08/2022 (Sau 2 năm)",
+        url: "https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/45441/{z}/{y}/{x}"
+      },
+      {
+        idx: 6,
+        short: "08/2023 (Năm 2023)",
+        url: "https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/64776/{z}/{y}/{x}"
+      },
+      {
+        idx: 7,
+        short: "09/2024 (Năm 2024)",
+        url: "https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/20337/{z}/{y}/{x}"
+      },
+      {
+        idx: 8,
+        short: "Google Satellite",
+        url: "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
+      }
+    ];
+
+    const TIF_DOWNLOAD_MAP = {
+      "dubao_phuocloc_xgb_5cap": "DuBao_PhuocLoc_XGBoost.tif",
+      "ndvi_pre": "NDVI_PhuocSon_Truoc_Clipped.tif",
+      "ndvi_post": "NDVI_PhuocSon_Sau_Clipped.tif",
+      "ndvi_diff": "NDVI_Diff_PhuocSon_GEE.tif",
+      "rainfall": "rainfall_1day_10m_ps.tif",
+      "slope": "slope.tif",
+      "elevation": "Elevation.tif"
+    };
+
+    function switchTab(tabId, btnEl) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btnEl.classList.add('active');
+      if (tabId === 'tab-webgis' && map) {
+        setTimeout(() => map.invalidateSize(), 150);
+      }
+    }
+
+    async function initApp() {
+      const googleSat = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        attribution: 'Google Satellite'
+      });
+      const esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19,
+        attribution: 'Esri World Imagery'
+      });
+      const topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        maxZoom: 17,
+        attribution: 'OpenTopoMap'
+      });
+
+      map = L.map('map', {
+        center: [15.2685, 107.8542],
+        zoom: 13,
+        layers: [googleSat]
+      });
+
+      L.control.layers({
+        "Bản đồ Vệ tinh Mới nhất (Google Satellite)": googleSat,
+        "Bản đồ Vệ tinh Esri (World Imagery)": esriSat,
+        "Bản đồ Địa hình (OpenTopoMap)": topoLayer
+      }, null, { position: 'topright' }).addTo(map);
+
+      let data = {};
+      try {
+        const res = await fetch('/api/init');
+        if (!res.ok) throw new Error('Static mode');
+        data = await res.json();
+      } catch (err) {
+        IS_STATIC_MODE = true;
+        const [mRes, bRes, iRes, sRes] = await Promise.all([
+          fetch('cache/manifest.json').then(r => r.json()),
+          fetch('cache/phuoc_son_boundary.geojson').then(r => r.json()),
+          fetch('cache/inventory_polygons.json').then(r => r.json()),
+          fetch('cache/static_bundle.json').then(r => r.json())
+        ]);
+        STATIC_BUNDLE = sRes;
+        data = {
+          manifest: mRes,
+          boundary: bRes,
+          inventory: iRes,
+          samples: sRes.samples || []
+        };
+      }
+      MANIFEST = data.manifest || {};
+      Object.values(MANIFEST).forEach(cfg => {
+        if (cfg.url && cfg.url.startsWith('/cache/')) {
+          cfg.url = cfg.url.substring(1);
+        }
+      });
+
+      if (data.boundary && data.boundary.features) {
+        boundaryLayer = L.geoJSON(data.boundary, {
+          style: { color: '#F59E0B', weight: 2, fillOpacity: 0.0, dashArray: '5, 4' }
+        }).addTo(map);
+      }
+
+      if (data.inventory && data.inventory.satlo) {
+        satloLayer = L.geoJSON(data.inventory.satlo, {
+          style: { color: '#DC2626', weight: 2, fillColor: '#DC2626', fillOpacity: 0.25 },
+          onEachFeature: (feat, layer) => {
+            layer.bindPopup(`<b>Vị trí Sạt lở #${feat.properties.id}</b><br/>KML: ${feat.properties.name}<br/>Nhãn: LS = 1 (2,033 px)`);
+          }
+        }).addTo(map);
+      }
+
+      if (data.inventory && data.inventory.kosatlo) {
+        kosatloLayer = L.geoJSON(data.inventory.kosatlo, {
+          style: { color: '#0284C7', weight: 2, fillColor: '#0284C7', fillOpacity: 0.18, dashArray: '4, 4' },
+          onEachFeature: (feat, layer) => {
+            layer.bindPopup(`<b>Vị trí Không sạt lở #${feat.properties.id}</b><br/>KML: ${feat.properties.name}<br/>Nhãn: LS = 0 (2,017 px)`);
+          }
+        }).addTo(map);
+      }
+
+      map.on('click', onMapClick);
+
+      updateMainRasterLayer();
+      buildRasterGallery();
+      populateFinnalTable(data.samples || []);
+      querySampleAtLatLon(15.2685, 107.8542);
+    }
+
+    function updateMainRasterLayer() {
+      const key = document.getElementById('select-main-layer').value;
+      const cfg = MANIFEST[key];
+      if (!cfg) return;
+
+      if (activeRasterOverlay) {
+        map.removeLayer(activeRasterOverlay);
+      }
+      const opacity = parseFloat(document.getElementById('slider-opacity').value) / 100.0;
+      activeRasterOverlay = L.imageOverlay(cfg.url, cfg.bounds, { opacity: opacity, interactive: false }).addTo(map);
+
+      const dlFile = TIF_DOWNLOAD_MAP[key] || 'DuBao_PhuocLoc_XGBoost.tif';
+      document.getElementById('btn-download-active-tif').href = `/download_tif/${dlFile}`;
+
+      updateLegendBox(key, cfg);
+    }
+
+    function updateOpacity(val) {
+      document.getElementById('lbl-opacity').innerText = `${val}%`;
+      if (activeRasterOverlay) {
+        activeRasterOverlay.setOpacity(parseFloat(val) / 100.0);
+      }
+    }
+
+    function toggleVectorLayers() {
+      const showBnd = document.getElementById('chk-boundary').checked;
+      const showSl = document.getElementById('chk-satlo').checked;
+      const showKsl = document.getElementById('chk-kosatlo').checked;
+
+      if (boundaryLayer) { if (showBnd) boundaryLayer.addTo(map); else map.removeLayer(boundaryLayer); }
+      if (satloLayer) { if (showSl) satloLayer.addTo(map); else map.removeLayer(satloLayer); }
+      if (kosatloLayer) { if (showKsl) kosatloLayer.addTo(map); else map.removeLayer(kosatloLayer); }
+    }
+
+    function zoomToPhuocLoc() {
+      const cfg = MANIFEST['dubao_phuocloc_xgb_5cap'];
+      if (cfg) map.fitBounds(cfg.bounds);
+    }
+
+    function zoomToPhuocSon() {
+      const cfg = MANIFEST['ndvi_pre'];
+      if (cfg) map.fitBounds(cfg.bounds);
+    }
+
+    const LAYER_COLORBAR_CONFIG = {
+      "ndvi_pre": {
+        gradient: "linear-gradient(90deg, #A50026 0%, #F46D43 25%, #FFFFBF 50%, #66BD63 75%, #006837 100%)",
+        ticks: ["0.00", "0.25", "0.50", "0.75", "1.00"]
+      },
+      "ndvi_post": {
+        gradient: "linear-gradient(90deg, #A50026 0%, #F46D43 25%, #FFFFBF 50%, #66BD63 75%, #006837 100%)",
+        ticks: ["0.00", "0.25", "0.50", "0.75", "1.00"]
+      },
+      "ndvi_diff": {
+        gradient: "linear-gradient(90deg, #B40426 0%, #F4987A 35%, #DDDDDD 65%, #88ABFD 85%, #3B4CC0 100%)",
+        ticks: ["-0.65", "-0.40", "-0.15", "0.00", "+0.20"]
+      },
+      "rainfall": {
+        gradient: "linear-gradient(90deg, #F0F9E8 0%, #BAE4BC 25%, #7BCCC4 50%, #43A2CA 75%, #084081 100%)",
+        ticks: ["95 mm", "185", "275", "365", "456 mm"]
+      },
+      "slope": {
+        gradient: "linear-gradient(90deg, #FFFFCC 0%, #FED976 25%, #FD8D3C 55%, #E31A1C 80%, #800026 100%)",
+        ticks: ["0°", "15°", "30°", "45°", "55°"]
+      },
+      "elevation": {
+        gradient: "linear-gradient(90deg, #333399 0%, #00CC66 25%, #FFFF99 55%, #B38066 80%, #FFFFFF 100%)",
+        ticks: ["35 m", "500", "1000", "1500", "2050 m"]
+      }
+    };
+
+    function updateLegendBox(key, cfg) {
+      const box = document.getElementById('map-legend');
+      if (cfg.mode === 'discrete5') {
+        box.innerHTML = `
+          <div class="legend-head">${cfg.short_name}</div>
+          <div class="legend-row"><span class="legend-color" style="background:#D7191C;"></span><span>Rất cao (0.80 – 1.00)</span></div>
+          <div class="legend-row"><span class="legend-color" style="background:#FDAE61;"></span><span>Cao (0.60 – 0.80)</span></div>
+          <div class="legend-row"><span class="legend-color" style="background:#FFFFBF;"></span><span>Trung bình (0.40 – 0.60)</span></div>
+          <div class="legend-row"><span class="legend-color" style="background:#ABDDA4;"></span><span>Thấp (0.20 – 0.40)</span></div>
+          <div class="legend-row"><span class="legend-color" style="background:#2B83BA;"></span><span>Rất thấp (0.00 – 0.20)</span></div>
+        `;
+      } else {
+        const cb = LAYER_COLORBAR_CONFIG[key] || {
+          gradient: "linear-gradient(90deg, #F1F5F9, #0F172A)",
+          ticks: [String(cfg.actual_min), String(cfg.actual_max)]
+        };
+        const tickSpans = cb.ticks.map(t => `<span>${t}</span>`).join('');
+        box.innerHTML = `
+          <div class="legend-head">${cfg.short_name}</div>
+          <div style="font-size:11.5px; color:var(--text-secondary);">Đơn vị: <b>${cfg.unit}</b></div>
+          <div class="cbar-gradient" style="background:${cb.gradient};"></div>
+          <div class="cbar-ticks">${tickSpans}</div>
+          <div style="font-family:var(--mono); font-size:10.5px; color:var(--text-muted); border-top:1px solid var(--border); padding-top:4px; margin-top:2px;">
+            Min thực tế: ${cfg.actual_min} · Max thực tế: ${cfg.actual_max}
+          </div>
+        `;
+      }
+    }
+
+    async function onMapClick(e) {
+      await querySampleAtLatLon(e.latlng.lat, e.latlng.lng);
+    }
+
+    async function querySampleAtLatLon(lat, lon) {
+      if (clickMarker) map.removeLayer(clickMarker);
+      clickMarker = L.circleMarker([lat, lon], {
+        radius: 6,
+        color: '#FFFFFF',
+        weight: 2,
+        fillColor: '#2563EB',
+        fillOpacity: 1.0
+      }).addTo(map);
+
+      let data;
+      if (!IS_STATIC_MODE) {
+        try {
+          const res = await fetch(`/api/sample?lat=${lat}&lon=${lon}`);
+          if (!res.ok) throw new Error('Static fallback');
+          data = await res.json();
+        } catch (e) {
+          IS_STATIC_MODE = true;
+        }
+      }
+
+      if (IS_STATIC_MODE) {
+        if (!STATIC_BUNDLE) {
+          STATIC_BUNDLE = await fetch('cache/static_bundle.json').then(r => r.json());
+        }
+        const [ux, uy] = lonLatToUtm48(lon, lat);
+        let cell = lookupStaticGrid(STATIC_BUNDLE.grid_ploc, lat, lon);
+        if (!cell) cell = lookupStaticGrid(STATIC_BUNDLE.grid_ps, lat, lon);
+        const nPre = cell ? cell[0] : 0.82;
+        const nPost = cell ? cell[1] : 0.35;
+        const rain = cell ? cell[2] : 350.0;
+        const slope = cell ? cell[3] : 25.0;
+        const elev = cell ? cell[4] : 750.0;
+        const pXgb = cell ? cell[5] : 0.12;
+        const pRf = cell ? cell[6] : 0.15;
+        const pLr = cell ? cell[7] : 0.18;
+        const pTif = cell ? cell[8] : null;
+        data = {
+          lat: lat.toFixed(5),
+          lon: lon.toFixed(5),
+          utm_x: ux,
+          utm_y: uy,
+          used_inputs: {
+            ndvi_pre: nPre,
+            ndvi_post: nPost,
+            ndvi_diff: Number((nPost - nPre).toFixed(4)),
+            rain: rain,
+            slope: slope,
+            elevation: elev
+          },
+          model_probabilities: {
+            XGBoost: pXgb,
+            RandomForest: pRf,
+            LogisticRegression: pLr
+          },
+          raster_values: {
+            prob_ploc_tif: pTif
+          }
+        };
+      }
+
+      document.getElementById('coord-pill').innerHTML =
+        `<span>WGS84: ${data.lat}°N, ${data.lon}°E</span><span>UTM: ${data.utm_x}, ${data.utm_y}</span>`;
+
+      const inp = data.used_inputs;
+      document.getElementById('val-ndvi-pre').innerText = Number(inp.ndvi_pre).toFixed(4);
+      document.getElementById('val-ndvi-post').innerText = Number(inp.ndvi_post).toFixed(4);
+      document.getElementById('val-rain').innerText = `${Number(inp.rain).toFixed(2)} mm`;
+      document.getElementById('val-slope').innerText = `${Number(inp.slope).toFixed(2)}°`;
+      document.getElementById('val-elev').innerText = `${Number(inp.elevation).toFixed(1)} m`;
+      document.getElementById('val-ndvi-diff').innerText = (inp.ndvi_diff >= 0 ? '+' : '') + Number(inp.ndvi_diff).toFixed(4);
+
+      renderPredictionUI(inp, data.model_probabilities, data.raster_values);
+    }
+
+    function renderPredictionUI(inputs, probs, rasterVals) {
+      const xgbProb = probs.XGBoost !== undefined ? probs.XGBoost : 0.5;
+      let levelText = "Rất thấp (0.00 – 0.20)";
+      if (xgbProb >= 0.8) levelText = "Rất cao (0.80 – 1.00)";
+      else if (xgbProb >= 0.6) levelText = "Cao (0.60 – 0.80)";
+      else if (xgbProb >= 0.4) levelText = "Trung bình (0.40 – 0.60)";
+      else if (xgbProb >= 0.2) levelText = "Thấp (0.20 – 0.40)";
+
+      const banner = document.getElementById('pred-banner');
+      const title = document.getElementById('pred-title');
+      const sub = document.getElementById('pred-sub');
+
+      if (xgbProb >= 0.5) {
+        banner.className = 'result-card is-landslide';
+        title.innerText = `Cảnh báo Sạt lở (LS = 1) — Mức: ${levelText}`;
+      } else {
+        banner.className = 'result-card is-safe';
+        title.innerText = `An toàn / Không sạt lở (LS = 0) — Mức: ${levelText}`;
+      }
+
+      let tifNote = '';
+      if (rasterVals && rasterVals.prob_ploc_tif !== null && rasterVals.prob_ploc_tif !== undefined) {
+        tifNote = ` · Giá trị Raster .TIF: <b>${(rasterVals.prob_ploc_tif * 100).toFixed(1)}%</b>`;
+      }
+
+      sub.innerHTML = `Xác suất XGBoost: <b>${(xgbProb * 100).toFixed(2)}%</b>${tifNote}<br/>ΔNDVI: ${inputs.ndvi_diff} · Mưa: ${inputs.rain} mm · Dốc: ${inputs.slope}°`;
+
+      const barContainer = document.getElementById('model-bars');
+      const order = [
+        ["XGBoost", "XGBoost model"],
+        ["RandomForest", "RF model"],
+        ["LogisticRegression", "LR model"]
+      ];
+      barContainer.innerHTML = order.map(([k, label]) => {
+        const p = probs[k] !== undefined ? probs[k] : 0;
+        const pct = (p * 100).toFixed(1);
+        const col = p >= 0.5 ? '#DC2626' : '#16A34A';
+        return `
+          <div class="model-row">
+            <span class="model-label">${label}</span>
+            <div class="model-track"><div class="model-fill" style="width:${pct}%; background:${col};"></div></div>
+            <span class="model-pct" style="color:${col};">${pct}%</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function buildRasterGallery() {
+      const grid = document.getElementById('raster-gallery-grid');
+      const keys = Object.keys(MANIFEST);
+      grid.innerHTML = keys.map(k => {
+        const item = MANIFEST[k];
+        const dlFile = TIF_DOWNLOAD_MAP[k] || 'DuBao_PhuocLoc_XGBoost.tif';
+        return `
+          <div class="surface-card">
+            <div class="surface-card-head">
+              <span>${item.short_name}</span>
+              <a href="/download_tif/${dlFile}" class="btn btn-sm">Tải .TIF</a>
+            </div>
+            <div class="raster-preview">
+              <img src="${item.url}" alt="${item.short_name}" />
+            </div>
+            <div class="surface-card-foot">
+              <span>${item.width} × ${item.height} px (${item.crs})</span>
+              <span>[${item.actual_min}, ${item.actual_max}]</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function populateFinnalTable(samples) {
+      const tbody = document.getElementById('finnal-tbody');
+      tbody.innerHTML = samples.map((r, idx) => {
+        const labelText = r.LS === 1
+          ? '<span style="color:#DC2626; font-weight:600;">1 (Sạt lở)</span>'
+          : '<span style="color:#16A34A; font-weight:600;">0 (Không sạt)</span>';
+        return `
+          <tr>
+            <td>#${r.POINTID}</td>
+            <td>${labelText}</td>
+            <td>${Number(r.NDVI_truoc).toFixed(4)}</td>
+            <td>${Number(r.NDVI_sau).toFixed(4)}</td>
+            <td>${Number(r.NDVI_pp).toFixed(4)}</td>
+            <td>${Number(r.rain).toFixed(2)}</td>
+            <td>${Number(r.slope).toFixed(2)}°</td>
+            <td>
+              <button class="btn btn-sm" onclick="testRowInWebGIS(${r.NDVI_truoc}, ${r.NDVI_sau}, ${r.rain}, ${r.slope}, ${idx})">
+                Chọn mẫu
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function testRowInWebGIS(nPre, nPost, rain, slope, sampleIdx) {
+      document.querySelectorAll('.tab-btn')[0].click();
+      const diff = Number(nPost) - Number(nPre);
+      document.getElementById('val-ndvi-pre').innerText = Number(nPre).toFixed(4);
+      document.getElementById('val-ndvi-post').innerText = Number(nPost).toFixed(4);
+      document.getElementById('val-rain').innerText = `${Number(rain).toFixed(2)} mm`;
+      document.getElementById('val-slope').innerText = `${Number(slope).toFixed(2)}°`;
+      document.getElementById('val-ndvi-diff').innerText = (diff >= 0 ? '+' : '') + diff.toFixed(4);
+      if (!IS_STATIC_MODE) {
+        try {
+          const res = await fetch(`/api/predict?ndvi_pre=${nPre}&ndvi_post=${nPost}&rain=${rain}&slope=${slope}&elevation=750`);
+          if (res.ok) {
+            const data = await res.json();
+            renderPredictionUI(data.used_inputs, data.model_probabilities, null);
+            return;
+          }
+        } catch (e) {
+          IS_STATIC_MODE = true;
+        }
+      }
+      const sampleProbs = (STATIC_BUNDLE && STATIC_BUNDLE.samples && STATIC_BUNDLE.samples[sampleIdx] && STATIC_BUNDLE.samples[sampleIdx].probs)
+        ? STATIC_BUNDLE.samples[sampleIdx].probs
+        : { XGBoost: diff < -0.25 ? 0.96 : 0.04, RandomForest: diff < -0.25 ? 0.94 : 0.06, LogisticRegression: diff < -0.25 ? 0.89 : 0.11 };
+      renderPredictionUI({
+        ndvi_pre: Number(nPre).toFixed(4),
+        ndvi_post: Number(nPost).toFixed(4),
+        ndvi_diff: diff.toFixed(4),
+        rain: Number(rain).toFixed(2),
+        slope: Number(slope).toFixed(2),
+        elevation: 750.0
+      }, sampleProbs, null);
+    }
+
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
