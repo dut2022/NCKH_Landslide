@@ -3,42 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Phuoc Son Landslide WebGIS — Sentinel-2 & Ensemble ML</title>
+  <title>Phước Sơn Geoportal — Giám sát & Nhận diện Sạt lở Đất</title>
   <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- Fonts: Roboto & System UI -->
+  <!-- Google Fonts: Roboto & System UI -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg-app: #F8FAFC;
-      --bg-surface: #FFFFFF;
-      --bg-subtle: #F1F5F9;
-      --border: #CBD5E1;
-      --border-strong: #94A3B8;
-      --text-primary: #1E293B;
-      --text-secondary: #475569;
+      --primary: #0066CC;
+      --primary-light: #EBF3FC;
+      --primary-hover: #0052A3;
+      --text-main: #1E293B;
+      --text-sub: #475569;
       --text-muted: #64748B;
-      --accent: #1E293B;
-      --brand: #1E40AF;
-      --brand-hover: #1D4ED8;
+      --bg-page: #F4F6F9;
+      --bg-card: #FFFFFF;
+      --border-card: #E2E8F0;
+      --border-focus: #93C5FD;
+      --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.06);
+      --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.1);
       --danger: #DC2626;
       --danger-bg: #FEF2F2;
       --danger-border: #FECACA;
       --success: #16A34A;
       --success-bg: #F0FDF4;
       --success-border: #BBF7D0;
-      --font-stack: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
-      --mono: 'Segoe UI', Roboto, Arial, sans-serif;
+      --font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: var(--font-stack);
-      background-color: var(--bg-app);
-      color: var(--text-primary);
+      font-family: var(--font-family);
+      background-color: var(--bg-page);
+      color: var(--text-main);
       height: 100vh;
       display: flex;
       flex-direction: column;
@@ -47,825 +47,1069 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* TOPBAR */
-    .topbar {
-      height: 54px;
-      background: var(--bg-surface);
-      border-bottom: 1px solid var(--border);
+    /* ========================================================================= */
+    /* 1. TOP NAVBAR (VNPT GEOPORTAL STYLE)                                      */
+    /* ========================================================================= */
+    .geoportal-navbar {
+      height: 56px;
+      background: #FFFFFF;
+      border-bottom: 1px solid #E5E7EB;
       padding: 0 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-shrink: 0;
+      z-index: 1000;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
     }
-    .brand-group {
+    .brand-section {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
     }
-    .brand-logo {
-      height: 38px;
+    .brand-logo-img {
+      height: 36px;
       width: auto;
-      max-width: 90px;
+      max-width: 85px;
       object-fit: contain;
-      border-radius: 4px;
-      border: 1px solid var(--border);
+      border-radius: 6px;
+      border: 1px solid #E2E8F0;
+      padding: 2px 4px;
       background: #FFFFFF;
-      display: block;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
-    .brand-mark {
-      background: #0F172A;
-      color: #FFFFFF;
-      font-family: var(--mono);
-      font-size: 11px;
+    .brand-text-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .brand-text-main {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0F172A;
+      letter-spacing: -0.2px;
+    }
+    .brand-text-highlight {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .brand-badge {
+      font-size: 10px;
       font-weight: 600;
-      padding: 4px 8px;
+      color: #0284C7;
+      background: #E0F2FE;
+      padding: 2px 6px;
       border-radius: 4px;
-      letter-spacing: 0.5px;
-    }
-    .brand-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text-primary);
+      margin-left: 2px;
     }
 
-    /* NAVIGATION */
-    .nav-group {
+    .navbar-menu {
       display: flex;
       align-items: center;
       gap: 6px;
       height: 100%;
     }
-    .tab-btn {
-      height: 100%;
-      background: transparent;
-      border: none;
-      border-bottom: 2px solid transparent;
+    .menu-item-btn {
+      height: 38px;
       padding: 0 16px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
       font-family: inherit;
       font-size: 13px;
       font-weight: 500;
-      color: var(--text-secondary);
+      color: var(--text-sub);
       cursor: pointer;
-      transition: color 0.15s, border-color 0.15s;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      transition: all 0.15s ease;
     }
-    .tab-btn:hover {
-      color: var(--text-primary);
+    .menu-item-btn:hover {
+      background: #F1F5F9;
+      color: var(--primary);
     }
-    .tab-btn.active {
-      color: var(--brand);
-      border-bottom-color: var(--brand);
+    .menu-item-btn.active {
+      background: var(--primary-light);
+      color: var(--primary);
       font-weight: 600;
     }
-
-    /* VIEWPORT */
-    .tab-content {
-      display: none;
-      flex: 1;
-      overflow: hidden;
-    }
-    .tab-content.active {
-      display: flex;
+    .menu-icon {
+      font-size: 15px;
     }
 
-    /* SIDEBAR */
-    .sidebar {
-      width: 390px;
-      background: var(--bg-surface);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-      flex-shrink: 0;
-    }
-    .panel-section {
-      padding: 16px 18px;
-      border-bottom: 1px solid var(--border);
-    }
-    .section-head {
+    .navbar-actions {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-    .section-title {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: var(--text-secondary);
-    }
-
-    /* CONTROLS */
-    .field-label {
-      display: block;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-primary);
-      margin-bottom: 6px;
-    }
-    select, input[type="number"], input[type="text"] {
-      width: 100%;
-      background: var(--bg-surface);
-      color: var(--text-primary);
-      border: 1px solid var(--border-strong);
-      border-radius: 6px;
-      padding: 7px 10px;
-      font-size: 12.5px;
-      font-family: inherit;
-      transition: border-color 0.15s;
-    }
-    input[type="number"], .mono-input {
-      font-family: var(--mono);
-      font-size: 12px;
-    }
-    select:focus, input:focus {
-      outline: none;
-      border-color: var(--brand);
-    }
-
-    .range-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       gap: 10px;
-      margin-top: 10px;
     }
-    .range-row label {
-      font-size: 12px;
-      color: var(--text-secondary);
-      min-width: 105px;
-    }
-    .range-row input[type="range"] {
-      flex: 1;
-      accent-color: var(--brand);
-      cursor: pointer;
-    }
-    .range-val {
-      font-family: var(--mono);
-      font-size: 11.5px;
-      font-weight: 600;
-      color: var(--text-primary);
-      width: 38px;
-      text-align: right;
-    }
-
-    /* VECTOR CHECKBOXES */
-    .layer-toggles {
-      margin-top: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-    }
-    .toggle-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 12px;
-      color: var(--text-primary);
-      cursor: pointer;
-    }
-    .toggle-left {
+    .search-box-pill {
       display: flex;
       align-items: center;
       gap: 8px;
+      background: #F1F5F9;
+      border: 1px solid #E2E8F0;
+      border-radius: 20px;
+      padding: 6px 14px;
+      width: 240px;
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: text;
+      transition: all 0.15s;
     }
-    .toggle-left input[type="checkbox"] {
-      accent-color: var(--brand);
-      width: 14px;
-      height: 14px;
+    .search-box-pill:hover, .search-box-pill:focus-within {
+      background: #FFFFFF;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+    }
+    .search-box-pill input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-family: inherit;
+      font-size: 12px;
+      color: var(--text-main);
+      width: 100%;
+    }
+    .quick-zoom-btn {
+      padding: 6px 12px;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .quick-zoom-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: #F8FAFC;
+    }
+    .avatar-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #0284C7;
+      color: #FFFFFF;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    /* ========================================================================= */
+    /* 2. TAB 1: WORKSPACE LAYOUT (MAP + FLOATING VNPT CARDS)                    */
+    /* ========================================================================= */
+    .tab-viewport {
+      display: none;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+    .tab-viewport.active {
+      display: flex;
+    }
+
+    .map-full-container {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+      background: #E2E8F0;
+    }
+
+    /* FLOATING LEFT CARD: LỚP DỮ LIỆU */
+    .geoportal-panel-left {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      width: 330px;
+      max-height: calc(100% - 32px);
+      background: #FFFFFF;
+      border-radius: 12px;
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--border-card);
+      display: flex;
+      flex-direction: column;
+      z-index: 1000;
+      overflow: hidden;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+    .geoportal-panel-left.collapsed {
+      transform: translateX(-350px);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .panel-card-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid #F1F5F9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #FFFFFF;
+    }
+    .panel-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #0F172A;
+    }
+    .panel-collapse-trigger {
+      background: transparent;
+      border: none;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+    }
+    .panel-collapse-trigger:hover {
+      background: #F1F5F9;
+      color: var(--text-main);
+    }
+
+    .panel-card-body {
+      padding: 12px 14px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    /* LAYER ITEMS LIST */
+    .layer-radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .layer-row-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: #F8FAFC;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .layer-row-card:hover {
+      background: #F1F5F9;
+      border-color: #E2E8F0;
+    }
+    .layer-row-card.active {
+      background: var(--primary-light);
+      border-color: #BFDBFE;
+    }
+    .layer-row-left {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #1E293B;
+    }
+    .layer-row-left input[type="radio"] {
+      accent-color: var(--primary);
       cursor: pointer;
     }
-    .swatch-line {
-      width: 14px;
-      height: 3px;
-      border-radius: 1px;
-      display: inline-block;
+    .layer-icon-badge {
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .icon-orange { background: #FFEDD5; color: #EA580C; }
+    .icon-green { background: #DCFCE7; color: #16A34A; }
+    .icon-forest { background: #D1FAE5; color: #059669; }
+    .icon-blue { background: #E0F2FE; color: #0284C7; }
+    .icon-purple { background: #F3E8FF; color: #9333EA; }
+    .icon-amber { background: #FEF3C7; color: #D97706; }
+    .icon-slate { background: #E2E8F0; color: #475569; }
+
+    /* OPACITY SLIDER */
+    .opacity-box {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .opacity-label {
+      font-size: 11.5px;
+      color: var(--text-sub);
+      width: 75px;
+    }
+    .opacity-box input[type="range"] {
+      flex: 1;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+    .opacity-text {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #0F172A;
+      width: 32px;
+      text-align: right;
+    }
+
+    /* EXTRA VECTOR ACCORDIONS (BẢN ĐỒ NỀN / CÔNG CỤ / CHÚ GIẢI) */
+    .extra-menu-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      border-top: 1px solid #F1F5F9;
+      padding-top: 10px;
+    }
+    .extra-menu-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-radius: 6px;
+      background: transparent;
+      border: none;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      color: #334155;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .extra-menu-btn:hover {
+      background: #F1F5F9;
+    }
+    .extra-menu-content {
+      padding: 6px 10px 10px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 11.5px;
+    }
+
+    /* TOGGLE ITEM */
+    .chk-label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      cursor: pointer;
+      color: #334155;
+    }
+    .chk-label input {
+      accent-color: var(--primary);
     }
     .swatch-box {
       width: 12px;
       height: 12px;
       border-radius: 2px;
-      display: inline-block;
-    }
-    .badge-count {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--text-muted);
-      background: var(--bg-subtle);
-      padding: 1px 6px;
-      border-radius: 4px;
     }
 
-    /* BUTTONS */
-    .btn-group {
-      display: flex;
-      gap: 6px;
-      margin-top: 12px;
-    }
-    .btn {
-      background: var(--bg-surface);
-      color: var(--text-primary);
-      border: 1px solid var(--border-strong);
-      border-radius: 6px;
-      padding: 6px 10px;
-      font-size: 12px;
-      font-weight: 500;
-      font-family: inherit;
-      cursor: pointer;
-      transition: all 0.15s;
-      text-decoration: none;
-      display: inline-flex;
+    /* TOGGLE BUTTON TO SHOW LEFT PANEL WHEN COLLAPSED */
+    .btn-toggle-left-panel {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: #FFFFFF;
+      border: 1px solid var(--border-card);
+      box-shadow: var(--shadow-card);
+      display: none;
       align-items: center;
       justify-content: center;
-      gap: 5px;
-    }
-    .btn:hover {
-      background: var(--bg-subtle);
-      border-color: #94A3B8;
-    }
-    .btn-primary {
-      background: var(--brand);
-      color: #FFFFFF;
-      border-color: var(--brand);
-    }
-    .btn-primary:hover {
-      background: var(--brand-hover);
-      border-color: var(--brand-hover);
-    }
-    .btn-sm {
-      padding: 4px 8px;
-      font-size: 11px;
+      font-size: 18px;
+      color: var(--primary);
+      cursor: pointer;
+      z-index: 999;
     }
 
-    /* INSPECTOR COORD BOX */
-    .coord-bar {
-      background: var(--bg-subtle);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 7px 10px;
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--text-secondary);
-      margin-bottom: 12px;
+    /* FLOATING RIGHT CARD: TỔNG QUAN KHÔNG GIAN & TRUY VẤN MÔ HÌNH */
+    .geoportal-panel-right {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 350px;
+      max-height: calc(100% - 32px);
+      background: #FFFFFF;
+      border-radius: 12px;
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--border-card);
       display: flex;
+      flex-direction: column;
+      z-index: 1000;
+      overflow: hidden;
+    }
+    .panel-right-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid #F1F5F9;
+      display: flex;
+      align-items: center;
       justify-content: space-between;
     }
-    /* READ-ONLY PIXEL DISPLAY GRID */
-    .readonly-grid {
+    .panel-right-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #0F172A;
+    }
+    .panel-right-body {
+      padding: 14px 16px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    /* PIXEL QUERY SECTION */
+    .query-coord-pill {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 11px;
+      color: #475569;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .metrics-2x3-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .metric-chip {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      padding: 7px 9px;
+    }
+    .metric-chip-label {
+      font-size: 10px;
+      color: #64748B;
+      display: block;
+      margin-bottom: 2px;
+    }
+    .metric-chip-val {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #0F172A;
+    }
+
+    /* PREDICTION RESULT */
+    .prediction-card {
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      border: 1px solid transparent;
+    }
+    .prediction-card.is-landslide {
+      background: var(--danger-bg);
+      border-color: var(--danger-border);
+    }
+    .prediction-card.is-safe {
+      background: var(--success-bg);
+      border-color: var(--success-border);
+    }
+    .pred-status-text {
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+    .is-landslide .pred-status-text { color: var(--danger); }
+    .is-safe .pred-status-text { color: var(--success); }
+    .pred-meta-text {
+      font-size: 11px;
+      color: #475569;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    /* 3 MODEL BARS */
+    .model-bars-group {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      padding-top: 4px;
+    }
+    .model-row-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11.5px;
+    }
+    .model-name {
+      width: 95px;
+      font-weight: 500;
+      color: #1E293B;
+    }
+    .model-track-bg {
+      flex: 1;
+      height: 7px;
+      background: #E2E8F0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .model-track-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.25s ease;
+    }
+    .model-value-pct {
+      width: 42px;
+      text-align: right;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* THUMBNAIL CARDS PREVIEW SECTION (LIKE VNPT) */
+    .spatial-gallery-title {
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #64748B;
+      letter-spacing: 0.4px;
+      margin: 14px 0 8px 0;
+      border-top: 1px solid #F1F5F9;
+      padding-top: 10px;
+    }
+    .mini-gallery-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
     }
-    .readonly-box {
-      background: var(--bg-subtle);
-      border: 1px solid var(--border);
+    .mini-card-thumb {
+      border: 1px solid #E2E8F0;
       border-radius: 6px;
-      padding: 8px 10px;
+      overflow: hidden;
+      background: #F8FAFC;
+      cursor: pointer;
+      transition: all 0.15s;
     }
-    .readonly-label {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-bottom: 3px;
+    .mini-card-thumb:hover {
+      border-color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+    .mini-card-thumb img {
+      width: 100%;
+      height: 58px;
+      object-fit: cover;
       display: block;
     }
-    .readonly-value {
-      font-family: var(--mono);
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    /* COLORBAR IN LEGEND */
-    .cbar-gradient {
-      width: 100%;
-      height: 14px;
-      border-radius: 3px;
-      border: 1px solid rgba(15, 23, 42, 0.25);
-      margin: 6px 0 4px 0;
-    }
-    .cbar-ticks {
-      display: flex;
-      justify-content: space-between;
-      font-family: var(--mono);
+    .mini-card-label {
+      padding: 4px 6px;
       font-size: 10.5px;
       font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 4px;
-    }
-
-    /* PREDICTION RESULT CARD */
-    .result-card {
-      margin-top: 14px;
-      border-radius: 6px;
-      padding: 12px;
-      border: 1px solid var(--border);
-      background: var(--bg-subtle);
-    }
-    .result-card.is-landslide {
-      background: var(--danger-bg);
-      border-color: var(--danger-border);
-    }
-    .result-card.is-safe {
-      background: var(--success-bg);
-      border-color: var(--success-border);
-    }
-    .result-status {
-      font-size: 12.5px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-    .result-card.is-landslide .result-status { color: var(--danger); }
-    .result-card.is-safe .result-status { color: var(--success); }
-    .result-meta {
-      font-size: 11.5px;
-      color: var(--text-secondary);
-      line-height: 1.5;
-    }
-
-    /* 3-MODEL COMPARISON BARS */
-    .model-list {
-      margin-top: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .model-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 12px;
-    }
-    .model-label {
-      width: 105px;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-    .model-track {
-      flex: 1;
-      height: 7px;
-      background: var(--bg-subtle);
-      border-radius: 4px;
+      color: #334155;
+      text-align: center;
+      white-space: nowrap;
       overflow: hidden;
-      border: 1px solid var(--border);
-    }
-    .model-fill {
-      height: 100%;
-      transition: width 0.25s ease;
-    }
-    .model-pct {
-      width: 48px;
-      text-align: right;
-      font-family: var(--mono);
-      font-size: 11.5px;
-      font-weight: 600;
+      text-overflow: ellipsis;
     }
 
-    /* MAP CONTAINER */
-    .map-workspace {
-      flex: 1;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-    }
-    #map {
-      flex: 1;
-      width: 100%;
-      background: #E2E8F0;
-    }
-
-    /* FLOATING STATUS & HISTORICAL SLIDER (GOOGLE EARTH PRO STYLE) */
-    .map-overlay-top {
-      position: absolute;
-      top: 12px;
-      left: 54px;
-      z-index: 1000;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .ge-slider-panel {
-      background: rgba(255, 255, 255, 0.96);
-      backdrop-filter: blur(6px);
-      border: 1px solid var(--border-strong);
-      border-radius: 6px;
-      padding: 8px 12px;
-      width: 460px;
-      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
-    }
-    .ge-slider-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 6px;
-      font-size: 11.5px;
-      font-weight: 600;
-      color: var(--text-secondary);
-    }
-    .ge-date-tag {
-      font-family: var(--mono);
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--brand);
-      background: #EFF6FF;
-      border: 1px solid #BFDBFE;
-      padding: 1px 7px;
-      border-radius: 4px;
-    }
-    .ge-controls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .ge-nav-btn {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-strong);
-      color: var(--text-primary);
-      border-radius: 4px;
-      width: 24px;
-      height: 22px;
-      font-size: 10px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .ge-nav-btn:hover { background: var(--bg-subtle); }
-    .ge-track-wrap {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-    .ge-track-wrap input[type="range"] {
-      width: 100%;
-      accent-color: var(--brand);
-      height: 5px;
-      cursor: pointer;
-    }
-    .ge-tick-labels {
-      display: flex;
-      justify-content: space-between;
-      font-family: var(--mono);
-      font-size: 9.5px;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-    .ge-tick-labels span {
-      cursor: pointer;
-    }
-    .ge-tick-labels span.active-tick {
-      color: var(--brand);
-      font-weight: 700;
-    }
-
-    /* FLOATING LEGEND */
-    .map-legend-card {
+    /* BASEMAP & FLOATING CONTROLS */
+    .floating-map-tools {
       position: absolute;
       bottom: 24px;
-      right: 16px;
-      z-index: 1000;
+      left: 16px;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tool-pill {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 20px;
+      padding: 6px 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      font-size: 12px;
+      font-weight: 600;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tool-pill:hover {
+      background: #F8FAFC;
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* DYNAMIC LEGEND */
+    .geoportal-legend-card {
+      position: absolute;
+      bottom: 24px;
+      right: 380px;
+      z-index: 999;
       background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(6px);
-      border: 1px solid var(--border-strong);
-      border-radius: 6px;
-      padding: 12px 14px;
-      min-width: 220px;
-      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      padding: 10px 14px;
+      min-width: 210px;
+      box-shadow: var(--shadow-card);
     }
-    .legend-head {
+    .legend-card-head {
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.4px;
-      color: var(--text-secondary);
-      margin-bottom: 8px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 5px;
+      letter-spacing: 0.3px;
+      color: #334155;
+      margin-bottom: 6px;
+      border-bottom: 1px solid #E2E8F0;
+      padding-bottom: 4px;
     }
     .legend-row {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 11.5px;
-      color: var(--text-primary);
-      margin-bottom: 5px;
+      font-size: 11px;
+      color: #1E293B;
+      margin-bottom: 4px;
     }
-    .legend-color {
-      width: 16px;
-      height: 11px;
+    .legend-swatch {
+      width: 14px;
+      height: 10px;
       border-radius: 2px;
-      border: 1px solid rgba(0,0,0,0.15);
       flex-shrink: 0;
+      border: 1px solid rgba(0,0,0,0.15);
+    }
+    .cbar-gradient {
+      width: 100%;
+      height: 12px;
+      border-radius: 3px;
+      border: 1px solid rgba(15, 23, 42, 0.2);
+      margin: 6px 0 3px 0;
+    }
+    .cbar-ticks {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9.5px;
+      color: #64748B;
     }
 
-    /* SCROLLABLE PAGE CONTENT */
-    .page-container {
+    /* ========================================================================= */
+    /* 3. TABS 2, 3, 4 (PAGES)                                                   */
+    /* ========================================================================= */
+    .page-viewport-container {
       flex: 1;
       overflow-y: auto;
       padding: 24px 32px;
-      max-width: 1440px;
+      max-width: 1400px;
       margin: 0 auto;
       width: 100%;
     }
-    .page-header {
+    .page-header-strip {
       margin-bottom: 20px;
       padding-bottom: 12px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
+      border-bottom: 1px solid #E2E8F0;
     }
-    .page-header h2 {
-      font-size: 17px;
+    .page-header-strip h2 {
+      font-size: 18px;
       font-weight: 700;
-      color: var(--text-primary);
+      color: #0F172A;
     }
-    .page-header p {
+    .page-header-strip p {
       font-size: 12.5px;
-      color: var(--text-secondary);
+      color: #64748B;
       margin-top: 4px;
     }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
 
-    /* CARDS & GRIDS */
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-    }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 18px;
-    }
-    .surface-card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
+    .geoportal-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
       overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
       display: flex;
       flex-direction: column;
     }
-    .surface-card-head {
+    .geoportal-card-head {
       padding: 10px 14px;
-      background: var(--bg-subtle);
-      border-bottom: 1px solid var(--border);
+      background: #F8FAFC;
+      border-bottom: 1px solid #E2E8F0;
       font-size: 12.5px;
       font-weight: 600;
-      color: var(--text-primary);
+      color: #1E293B;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    .surface-card-body {
+    .geoportal-card-body {
       padding: 14px;
-      background: var(--bg-surface);
+      background: #FFFFFF;
       flex: 1;
     }
-    .raster-preview {
-      height: 260px;
+    .card-img-preview {
+      height: 240px;
       background: #F8FAFC;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 10px;
+      padding: 8px;
     }
-    .raster-preview img {
+    .card-img-preview img {
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
     }
-    .surface-card-foot {
+    .geoportal-card-foot {
       padding: 8px 14px;
-      border-top: 1px solid var(--border);
-      font-family: var(--mono);
+      border-top: 1px solid #E2E8F0;
       font-size: 11px;
-      color: var(--text-muted);
+      color: #64748B;
       display: flex;
       justify-content: space-between;
-      background: var(--bg-surface);
+      background: #FFFFFF;
     }
 
-    /* SCIENTIFIC TABLE */
     table.sci-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 12.5px;
-      background: var(--bg-surface);
+      background: #FFFFFF;
     }
     table.sci-table th {
-      background: var(--bg-subtle);
-      color: var(--text-secondary);
+      background: #F8FAFC;
+      color: #475569;
       font-weight: 600;
       font-size: 11.5px;
       text-transform: uppercase;
       letter-spacing: 0.3px;
       padding: 10px 12px;
-      border-bottom: 2px solid var(--border-strong);
+      border-bottom: 2px solid #CBD5E1;
       text-align: right;
     }
-    table.sci-table th:first-child,
-    table.sci-table th:nth-child(2) {
-      text-align: left;
-    }
+    table.sci-table th:first-child, table.sci-table th:nth-child(2) { text-align: left; }
     table.sci-table td {
       padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid #E2E8F0;
       text-align: right;
-      font-family: inherit;
-      color: var(--text-primary);
+      color: #1E293B;
     }
-    table.sci-table td:first-child {
-      font-family: inherit;
-      text-align: left;
-      font-weight: 600;
-    }
-    table.sci-table td:nth-child(2) {
-      font-family: inherit;
-      text-align: left;
-      color: var(--text-secondary);
-    }
-    table.sci-table tr:hover {
-      background: #F8FAFC;
-    }
-    table.sci-table tr.row-best {
-      background: #EFF6FF;
-    }
+    table.sci-table td:first-child { text-align: left; font-weight: 600; }
+    table.sci-table td:nth-child(2) { text-align: left; color: #64748B; }
+    table.sci-table tr:hover { background: #F8FAFC; }
+    table.sci-table tr.row-best { background: #EFF6FF; }
   </style>
 </head>
 <body>
 
-  <!-- TOP HEADER & NAVIGATION -->
-  <header class="topbar">
-    <div class="brand-group">
-      <img src="cache/22dttm.jpg" alt="Logo" class="brand-logo" />
-      <span class="brand-title">Phuoc Son Landslide Susceptibility System</span>
+  <!-- ========================================================================= -->
+  <!-- 1. TOP NAVBAR (VNPT GEOPORTAL THEME)                                      -->
+  <!-- ========================================================================= -->
+  <header class="geoportal-navbar">
+    <div class="brand-section">
+      <img src="cache/22dttm.jpg" alt="Logo" class="brand-logo-img" />
+      <div class="brand-text-wrap">
+        <span class="brand-text-main">Phước Sơn</span>
+        <span class="brand-text-highlight">Geoportal</span>
+        <span class="brand-badge">S2 · ML</span>
+      </div>
     </div>
 
-    <nav class="nav-group">
-      <button class="tab-btn active" onclick="switchTab('tab-webgis', this)">
-        1. Bản đồ WebGIS & Truy vấn Mô hình
+    <nav class="navbar-menu">
+      <button class="menu-item-btn active" onclick="switchTab('tab-webgis', this)">
+        <span class="menu-icon">🗺️</span> Bản đồ
       </button>
-      <button class="tab-btn" onclick="switchTab('tab-rasters', this)">
-        2. Dữ liệu Bản đồ GeoTIFF (7 Lớp)
+      <button class="menu-item-btn" onclick="switchTab('tab-rasters', this)">
+        <span class="menu-icon">📚</span> Dữ liệu
       </button>
-      <button class="tab-btn" onclick="switchTab('tab-models', this)">
-        3. Đánh giá 3 Mô hình (LR, RF, XGBoost)
+      <button class="menu-item-btn" onclick="switchTab('tab-models', this)">
+        <span class="menu-icon">📊</span> Phân tích
       </button>
-      <button class="tab-btn" onclick="switchTab('tab-validation', this)">
-        4. Kiểm chứng Thực địa (Hình 14 & 15)
+      <button class="menu-item-btn" onclick="switchTab('tab-validation', this)">
+        <span class="menu-icon">📑</span> Báo cáo
       </button>
     </nav>
+
+    <div class="navbar-actions">
+      <div class="search-box-pill">
+        <span>🔍</span>
+        <input type="text" placeholder="Tìm kiếm địa điểm, tọa độ..." onkeydown="handleSearch(event)" />
+      </div>
+      <button class="quick-zoom-btn" onclick="zoomToPhuocLoc()">Phước Lộc</button>
+      <button class="quick-zoom-btn" onclick="zoomToPhuocSon()">Phước Sơn</button>
+      <a href="https://github.com/dut2022/NCKH_Landslide" target="_blank" class="avatar-btn" title="Xem GitHub">
+        GH
+      </a>
+    </div>
   </header>
 
-  <!-- ======================================================================= -->
-  <!-- TAB 1: WEBGIS WORKSPACE                                                 -->
-  <!-- ======================================================================= -->
-  <section id="tab-webgis" class="tab-content active">
-    <aside class="sidebar">
-      <!-- LỚP BẢN ĐỒ RASTER -->
-      <div class="panel-section">
-        <div class="section-head">
-          <span class="section-title">1. Lớp Bản đồ GeoTIFF & Nền Vệ tinh</span>
-          <a id="btn-download-active-tif" href="/download_tif/DuBao_PhuocLoc_XGBoost.tif" class="btn btn-sm">Tải file .TIF</a>
+  <!-- ========================================================================= -->
+  <!-- 2. TAB 1: WORKSPACE (MAP + FLOATING VNPT CARDS)                           -->
+  <!-- ========================================================================= -->
+  <section id="tab-webgis" class="tab-viewport active">
+    <!-- NÚT MỞ PANEL TRÁI KHI THU GỌN -->
+    <button class="btn-toggle-left-panel" id="btn-show-left-panel" onclick="toggleLeftPanel()" title="Mở bảng Lớp dữ liệu">
+      ☰
+    </button>
+
+    <!-- FLOATING LEFT PANEL: LỚP DỮ LIỆU (VNPT STYLE) -->
+    <aside class="geoportal-panel-left" id="panel-left">
+      <div class="panel-card-head">
+        <div class="panel-card-title">
+          <span>📚</span> Lớp dữ liệu địa lý
+        </div>
+        <button class="panel-collapse-trigger" onclick="toggleLeftPanel()" title="Thu gọn bảng">
+          ◀
+        </button>
+      </div>
+
+      <div class="panel-card-body">
+        <!-- DANH SÁCH 7 LỚP CHUYÊN ĐỀ GEOTIFF -->
+        <div class="layer-radio-group">
+          <label class="layer-row-card active" onclick="selectLayer('dubao_phuocloc_xgb_5cap')">
+            <div class="layer-row-left">
+              <input type="radio" name="main_layer" value="dubao_phuocloc_xgb_5cap" checked />
+              <span class="layer-icon-badge icon-orange">⚡</span>
+              <span>1. Dự báo Sạt lở Mới nhất (XGBoost)</span>
+            </div>
+          </label>
+
+          <label class="layer-row-card" onclick="selectLayer('ndvi_pre')">
+            <div class="layer-row-left">
+              <input type="radio" name="main_layer" value="ndvi_pre" />
+              <span class="layer-icon-badge icon-green">🌱</span>
+              <span>2. NDVI Trước sạt lở (06–08/2020)</span>
+            </div>
+          </label>
+
+          <label class="layer-row-card" onclick="selectLayer('ndvi_post')">
+            <div class="layer-row-left">
+              <input type="radio" name="main_layer" value="ndvi_post" />
+              <span class="layer-icon-badge icon-forest">🌲</span>
+              <span>3. NDVI Sau sạt lở (10/2020–02/2021)</span>
+            </div>
+          </label>
+
+          <label class="layer-row-card" onclick="selectLayer('ndvi_diff')">
+            <div class="layer-row-left">
+              <input type="radio" name="main_layer" value="ndvi_diff" />
+              <span class="layer-icon-badge icon-purple">🍂</span>
+              <span>4. Độ suy giảm Thực vật (ΔNDVI)</span>
+            </div>
+          </label>
+
+          <label class="layer-row-card" onclick="selectLayer('rainfall')">
+            <div class="layer-row-left">
+              <input type="radio" name="main_layer" value="rainfall" />
+              <span class="layer-icon-badge icon-blue">💧</span>
+              <span>5. Lượng mưa ngày 28/10/2020</span>
+            </div>
+          </label>
+
+          <label class="layer-row-card" onclick="selectLayer('slope')">
+            <div class="layer-row-left">
+              <input type="radio" name="main_layer" value="slope" />
+              <span class="layer-icon-badge icon-amber">📐</span>
+              <span>6. Độ dốc địa hình (Slope)</span>
+            </div>
+          </label>
+
+          <label class="layer-row-card" onclick="selectLayer('elevation')">
+            <div class="layer-row-left">
+              <input type="radio" name="main_layer" value="elevation" />
+              <span class="layer-icon-badge icon-slate">⛰️</span>
+              <span>7. Độ cao địa hình DEM (12.5m)</span>
+            </div>
+          </label>
         </div>
 
-        <label class="field-label">Lớp chuyên đề GeoTIFF (.tif):</label>
-        <select id="select-main-layer" onchange="updateMainRasterLayer()">
-          <option value="dubao_phuocloc_xgb_5cap" selected>1. Bản đồ Dự báo Sạt lở Mới nhất — XGBoost (DuBao_PhuocLoc_XGBoost.tif)</option>
-          <option value="ndvi_pre">2. Chỉ số Thực vật Trước sạt lở 06–08/2020 (NDVI_pre — Phước Sơn)</option>
-          <option value="ndvi_post">3. Chỉ số Thực vật Sau sạt lở 10/2020–02/2021 (NDVI_post — Phước Sơn)</option>
-          <option value="ndvi_diff">4. Độ suy giảm Thực vật ΔNDVI = NDVI_sau - NDVI_truoc (Phước Sơn)</option>
-          <option value="rainfall">5. Lượng mưa kích hoạt ngày 28/10/2020 (rainfall_1day_10m_ps.tif)</option>
-          <option value="slope">6. Độ dốc địa hình — Slope (slope.tif)</option>
-          <option value="elevation">7. Độ cao địa hình DEM ALOS PALSAR 12.5m (Elevation.tif)</option>
-        </select>
-
-        <div class="range-row">
-          <label>Độ hiển thị .TIF:</label>
+        <!-- THANH CHỈNH ĐỘ MỜ -->
+        <div class="opacity-box">
+          <span class="opacity-label">Độ hiển thị:</span>
           <input type="range" id="slider-opacity" min="0" max="100" value="85" oninput="updateOpacity(this.value)" />
-          <span class="range-val" id="lbl-opacity">85%</span>
+          <span class="opacity-text" id="lbl-opacity">85%</span>
         </div>
 
-        <div class="layer-toggles">
-          <label class="toggle-row">
-            <span class="toggle-left">
+        <!-- MỤC MỞ RỘNG: VECTOR & NỀN (VNPT ACCORDION) -->
+        <div class="extra-menu-list">
+          <button class="extra-menu-btn" onclick="toggleSubMenu('menu-vector')">
+            <span>🛠️ Lớp ranh giới & Vị trí kiểm kê</span>
+            <span>▾</span>
+          </button>
+          <div class="extra-menu-content" id="menu-vector">
+            <label class="chk-label">
               <input type="checkbox" id="chk-boundary" checked onchange="toggleVectorLayers()" />
-              <span class="swatch-line" style="background:#D97706;"></span>
-              <span>Ranh giới hành chính huyện Phước Sơn</span>
-            </span>
-            <span class="badge-count">SHP</span>
-          </label>
-          <label class="toggle-row">
-            <span class="toggle-left">
+              <span class="swatch-box" style="border:2px solid #D97706; background:transparent;"></span>
+              <span>Ranh giới huyện Phước Sơn</span>
+            </label>
+            <label class="chk-label">
               <input type="checkbox" id="chk-satlo" checked onchange="toggleVectorLayers()" />
-              <span class="swatch-box" style="border:2px solid #DC2626; background:rgba(220,38,38,0.2);"></span>
-              <span>Vị trí Sạt lở kiểm kê (LS = 1)</span>
-            </span>
-            <span class="badge-count">12 vùng · 2,033 px</span>
-          </label>
-          <label class="toggle-row">
-            <span class="toggle-left">
+              <span class="swatch-box" style="border:2px solid #DC2626; background:rgba(220,38,38,0.25);"></span>
+              <span>Vị trí Sạt lở kiểm kê (2,033 px)</span>
+            </label>
+            <label class="chk-label">
               <input type="checkbox" id="chk-kosatlo" checked onchange="toggleVectorLayers()" />
-              <span class="swatch-box" style="border:2px dashed #0284C7; background:rgba(2,132,199,0.15);"></span>
-              <span>Vị trí Không sạt lở kiểm kê (LS = 0)</span>
-            </span>
-            <span class="badge-count">14 vùng · 2,017 px</span>
-          </label>
-        </div>
+              <span class="swatch-box" style="border:2px dashed #0284C7; background:rgba(2,132,199,0.18);"></span>
+              <span>Vị trí Không sạt lở (2,017 px)</span>
+            </label>
+          </div>
 
-        <div class="btn-group">
-          <button class="btn" style="flex:1;" onclick="zoomToPhuocLoc()">Vùng dự báo Phước Lộc</button>
-          <button class="btn" style="flex:1;" onclick="zoomToPhuocSon()">Toàn huyện Phước Sơn</button>
+          <button class="extra-menu-btn" onclick="toggleSubMenu('menu-basemap')">
+            <span>📖 Bản đồ nền vệ tinh / địa hình</span>
+            <span>▾</span>
+          </button>
+          <div class="extra-menu-content" id="menu-basemap" style="display:none;">
+            <label class="chk-label">
+              <input type="radio" name="basemap_choice" value="google" checked onchange="switchBaseMap('google')" />
+              <span>Google Satellite (Vệ tinh Google)</span>
+            </label>
+            <label class="chk-label">
+              <input type="radio" name="basemap_choice" value="esri" onchange="switchBaseMap('esri')" />
+              <span>Esri World Imagery (Vệ tinh Esri)</span>
+            </label>
+            <label class="chk-label">
+              <input type="radio" name="basemap_choice" value="topo" onchange="switchBaseMap('topo')" />
+              <span>OpenTopoMap (Bản đồ địa hình)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- FULLSCREEN MAP -->
+    <div class="map-full-container">
+      <div id="map"></div>
+
+      <!-- NÚT CHUYỂN NỀN NHANH DƯỚI GÓC BẢN ĐỒ -->
+      <div class="floating-map-tools">
+        <div class="tool-pill" onclick="switchBaseMapToggle()">
+          <span>🗺️</span> <span id="lbl-toggle-basemap">Chuyển sang Địa hình</span>
+        </div>
+        <a id="btn-download-tif-pill" href="/download_tif/DuBao_PhuocLoc_XGBoost.tif" class="tool-pill" style="text-decoration:none;">
+          <span>💾</span> Tải file .TIF
+        </a>
+      </div>
+
+      <!-- CHÚ GIẢI THANG MÀU -->
+      <div class="geoportal-legend-card" id="map-legend"></div>
+    </div>
+
+    <!-- FLOATING RIGHT PANEL: TỔNG QUAN KHÔNG GIAN & TRUY VẤN MÔ HÌNH (VNPT STYLE) -->
+    <aside class="geoportal-panel-right">
+      <div class="panel-right-head">
+        <div class="panel-right-title">
+          <span>📊</span> Tổng quan không gian & Truy vấn
         </div>
       </div>
 
-      <!-- TRUY VẤN PIXEL & CHẠY 3 MÔ HÌNH (CHỈ HIỂN THỊ KHI CLICK BẢN ĐỒ) -->
-      <div class="panel-section" style="border-bottom:none;">
-        <div class="section-head">
-          <span class="section-title">2. Truy vấn Pixel & Dự báo (LR, RF, XGBoost)</span>
-          <span style="font-size:11px; color:var(--text-muted);">Click bản đồ để xem</span>
-        </div>
-
-        <div class="coord-bar" id="coord-pill">
+      <div class="panel-right-body">
+        <div class="query-coord-pill" id="coord-pill">
           <span>WGS84: 15.2685°N, 107.8542°E</span>
           <span>UTM 48N</span>
         </div>
 
-        <div class="readonly-grid">
-          <div class="readonly-box">
-            <span class="readonly-label">NDVI Trước sạt lở</span>
-            <div class="readonly-value" id="val-ndvi-pre">0.8350</div>
+        <div class="metrics-2x3-grid">
+          <div class="metric-chip">
+            <span class="metric-chip-label">NDVI Trước sạt lở</span>
+            <div class="metric-chip-val" id="val-ndvi-pre">0.8350</div>
           </div>
-          <div class="readonly-box">
-            <span class="readonly-label">NDVI Sau sạt lở</span>
-            <div class="readonly-value" id="val-ndvi-post">0.1450</div>
+          <div class="metric-chip">
+            <span class="metric-chip-label">NDVI Sau sạt lở</span>
+            <div class="metric-chip-val" id="val-ndvi-post">0.1450</div>
           </div>
-          <div class="readonly-box">
-            <span class="readonly-label">Lượng mưa 28/10 (mm)</span>
-            <div class="readonly-value" id="val-rain">382.50</div>
+          <div class="metric-chip">
+            <span class="metric-chip-label">Lượng mưa (mm)</span>
+            <div class="metric-chip-val" id="val-rain">382.50 mm</div>
           </div>
-          <div class="readonly-box">
-            <span class="readonly-label">Độ dốc Slope (°)</span>
-            <div class="readonly-value" id="val-slope">28.40°</div>
+          <div class="metric-chip">
+            <span class="metric-chip-label">Độ dốc (Slope)</span>
+            <div class="metric-chip-val" id="val-slope">28.40°</div>
           </div>
-          <div class="readonly-box">
-            <span class="readonly-label">Độ cao DEM (m)</span>
-            <div class="readonly-value" id="val-elev">845.0 m</div>
+          <div class="metric-chip">
+            <span class="metric-chip-label">Độ cao DEM (m)</span>
+            <div class="metric-chip-val" id="val-elev">845.0 m</div>
           </div>
-          <div class="readonly-box">
-            <span class="readonly-label">Chênh lệch ΔNDVI</span>
-            <div class="readonly-value" id="val-ndvi-diff" style="color:var(--brand);">-0.6900</div>
+          <div class="metric-chip">
+            <span class="metric-chip-label">Chênh lệch ΔNDVI</span>
+            <div class="metric-chip-val" id="val-ndvi-diff" style="color:var(--primary);">-0.6900</div>
           </div>
         </div>
 
-        <div id="pred-banner" class="result-card is-landslide">
-          <div id="pred-title" class="result-status">Đang tính toán...</div>
-          <div id="pred-sub" class="result-meta"></div>
+        <!-- KẾT QUẢ DỰ BÁO -->
+        <div id="pred-banner" class="prediction-card is-landslide">
+          <div id="pred-title" class="pred-status-text">Đang tính toán...</div>
+          <div id="pred-sub" class="pred-meta-text"></div>
         </div>
 
-        <div class="model-list" id="model-bars"></div>
+        <!-- 3 THANH TIẾN ĐỘ MÔ HÌNH -->
+        <div class="model-bars-group" id="model-bars"></div>
+
+        <!-- BẢN ĐỒ THU NHỎ (THUMBNAILS LIKE VNPT) -->
+        <div class="spatial-gallery-title">Bộ sưu tập lớp bản đồ viễn thám</div>
+        <div class="mini-gallery-grid">
+          <div class="mini-card-thumb" onclick="selectLayer('dubao_phuocloc_xgb_5cap')">
+            <img src="cache/dubao_phuocloc_xgb_5cap.png" alt="Dự báo" />
+            <div class="mini-card-label">Dự báo XGBoost ></div>
+          </div>
+          <div class="mini-card-thumb" onclick="selectLayer('ndvi_pre')">
+            <img src="cache/ndvi_pre.png" alt="NDVI Trước" />
+            <div class="mini-card-label">NDVI Trước sạt lở ></div>
+          </div>
+          <div class="mini-card-thumb" onclick="selectLayer('ndvi_post')">
+            <img src="cache/ndvi_post.png" alt="NDVI Sau" />
+            <div class="mini-card-label">NDVI Sau sạt lở ></div>
+          </div>
+          <div class="mini-card-thumb" onclick="selectLayer('rainfall')">
+            <img src="cache/rainfall.png" alt="Lượng mưa" />
+            <div class="mini-card-label">Lượng mưa 28/10 ></div>
+          </div>
+        </div>
       </div>
     </aside>
-
-    <!-- MAP VIEWPORT -->
-    <div class="map-workspace">
-      <div id="map"></div>
-      <div class="map-legend-card" id="map-legend"></div>
-    </div>
   </section>
 
-  <!-- ======================================================================= -->
-  <!-- TAB 2: 7 GEOTIFF RASTER LAYERS                                          -->
-  <!-- ======================================================================= -->
-  <section id="tab-rasters" class="tab-content">
-    <div class="page-container">
-      <div class="page-header">
-        <div>
-          <h2>Dữ liệu Bản đồ Raster GeoTIFF (.TIF)</h2>
-          <p>Bao gồm 1 bản đồ dự báo sạt lở mới nhất tại Phước Lộc (XGBoost) và 6 lớp dữ liệu đầu vào đã cắt chuẩn theo ranh giới huyện Phước Sơn.</p>
-        </div>
+  <!-- ========================================================================= -->
+  <!-- TAB 2: DỮ LIỆU BẢN ĐỒ GEOTIFF                                             -->
+  <!-- ========================================================================= -->
+  <section id="tab-rasters" class="tab-viewport">
+    <div class="page-viewport-container">
+      <div class="page-header-strip">
+        <h2>Dữ liệu Bản đồ Raster GeoTIFF (.TIF)</h2>
+        <p>Bao gồm 1 bản đồ dự báo sạt lở mới nhất tại Phước Lộc (XGBoost) và 6 lớp dữ liệu đầu vào đã cắt chuẩn theo ranh giới huyện Phước Sơn.</p>
       </div>
       <div class="grid-3" id="raster-gallery-grid"></div>
     </div>
   </section>
 
-  <!-- ======================================================================= -->
-  <!-- TAB 3: 3 MACHINE LEARNING MODELS (LR, RF, XGBOOST)                      -->
-  <!-- ======================================================================= -->
-  <section id="tab-models" class="tab-content">
-    <div class="page-container">
-      <div class="page-header">
-        <div>
-          <h2>Kết quả Huấn luyện & Kiểm định 3 Mô hình Học máy (LR, RF, XGBoost)</h2>
-          <p>Đánh giá trên bộ dữ liệu chuẩn Finnal.csv (4,050 pixels: 2,033 pixels sạt lở và 2,017 pixels không sạt lở; tỷ lệ Train 80% / Test 20%).</p>
-        </div>
+  <!-- ========================================================================= -->
+  <!-- TAB 3: ĐÁNH GIÁ 3 MÔ HÌNH (LR, RF, XGBOOST)                               -->
+  <!-- ========================================================================= -->
+  <section id="tab-models" class="tab-viewport">
+    <div class="page-viewport-container">
+      <div class="page-header-strip">
+        <h2>Kết quả Huấn luyện & Kiểm định 3 Mô hình Học máy (LR, RF, XGBoost)</h2>
+        <p>Đánh giá trên bộ dữ liệu chuẩn Finnal.csv (4,050 pixels: 2,033 pixels sạt lở và 2,017 pixels không sạt lở; tỷ lệ Train 80% / Test 20%).</p>
       </div>
 
-      <div class="surface-card" style="margin-bottom:20px;">
+      <div class="geoportal-card" style="margin-bottom:20px;">
         <table class="sci-table">
           <thead>
             <tr>
@@ -966,22 +1210,22 @@
       </div>
 
       <div class="grid-2" style="margin-bottom:20px;">
-        <div class="surface-card">
-          <div class="surface-card-head"><span>Đường cong ROC (LR model, RF model, XGBoost model)</span></div>
-          <div class="surface-card-body" style="text-align:center;">
-            <img src="ketqua_img/ROC_3_Models_In_One.png" style="max-width:100%; max-height:400px;" />
+        <div class="geoportal-card">
+          <div class="geoportal-card-head"><span>Đường cong ROC (LR model, RF model, XGBoost model)</span></div>
+          <div class="geoportal-card-body" style="text-align:center;">
+            <img src="ketqua_img/ROC_3_Models_In_One.png" style="max-width:100%; max-height:380px;" />
           </div>
         </div>
-        <div class="surface-card">
-          <div class="surface-card-head"><span>Phân bố Tỷ lệ Diện tích 5 Cấp độ Nguy cơ Sạt lở</span></div>
-          <div class="surface-card-body" style="text-align:center;">
-            <img src="ketqua_img/PhuocLoc/BieuDo_CapDoSatLo_13_5.png" style="max-width:100%; max-height:400px;" />
+        <div class="geoportal-card">
+          <div class="geoportal-card-head"><span>Phân bố Tỷ lệ Diện tích 5 Cấp độ Nguy cơ Sạt lở</span></div>
+          <div class="geoportal-card-body" style="text-align:center;">
+            <img src="ketqua_img/PhuocLoc/BieuDo_CapDoSatLo_13_5.png" style="max-width:100%; max-height:380px;" />
           </div>
         </div>
       </div>
 
-      <div class="surface-card">
-        <div class="surface-card-head">
+      <div class="geoportal-card">
+        <div class="geoportal-card-head">
           <span>Trích xuất Dữ liệu Mẫu từ Finnal.csv (Chọn mẫu để nạp sang Bản đồ)</span>
         </div>
         <div style="max-height:280px; overflow-y:auto;">
@@ -1005,59 +1249,57 @@
     </div>
   </section>
 
-  <!-- ======================================================================= -->
-  <!-- TAB 4: FIELD VALIDATION (FIG 14 & FIG 15 ONLY)                          -->
-  <!-- ======================================================================= -->
-  <section id="tab-validation" class="tab-content">
-    <div class="page-container">
-      <div class="page-header">
-        <div>
-          <h2>Kiểm chứng Khả năng Phân biệt Sạt lở Đất với Hoạt động Nhân sinh (Hình 14 & Hình 15)</h2>
-          <p>Đối chiếu kết quả dự báo của mô hình XGBoost với ảnh vệ tinh Google Earth để kiểm chứng khả năng loại trừ các vùng suy giảm NDVI do phá rừng hoặc xây dựng công trình.</p>
-        </div>
+  <!-- ========================================================================= -->
+  <!-- TAB 4: KIỂM CHỨNG THỰC ĐỊA                                                -->
+  <!-- ========================================================================= -->
+  <section id="tab-validation" class="tab-viewport">
+    <div class="page-viewport-container">
+      <div class="page-header-strip">
+        <h2>Kiểm chứng Khả năng Phân biệt Sạt lở Đất với Hoạt động Nhân sinh (Hình 14 & Hình 15)</h2>
+        <p>Đối chiếu kết quả dự báo của mô hình XGBoost với ảnh vệ tinh Google Earth để kiểm chứng khả năng loại trừ các vùng suy giảm NDVI do phá rừng hoặc xây dựng công trình.</p>
       </div>
 
       <!-- FIG 14 -->
-      <div class="surface-card" style="margin-bottom:20px;">
-        <div class="surface-card-head">
+      <div class="geoportal-card" style="margin-bottom:20px;">
+        <div class="geoportal-card-head">
           <span>Kịch bản 1 (Hình 14 — 15°16'22.91"N, 107°50'32.23"E): Khu vực mất thảm thực vật do Khai thác rừng / Phá rừng</span>
         </div>
-        <div class="surface-card-body">
+        <div class="geoportal-card-body">
           <div class="grid-3">
             <div>
-              <div class="field-unit" style="font-weight:600; color:var(--text-primary); margin-bottom:6px;">(a) Ảnh vệ tinh Google Earth (01/10/2021)</div>
-              <img src="ketqua_img/PhuocLoc/Fig14/a_VeTinh.png" style="width:100%; border-radius:4px; border:1px solid var(--border);" />
+              <div style="font-size:12px; font-weight:600; color:#1E293B; margin-bottom:6px;">(a) Ảnh vệ tinh Google Earth (01/10/2021)</div>
+              <img src="ketqua_img/PhuocLoc/Fig14/a_VeTinh.png" style="width:100%; border-radius:4px; border:1px solid #E2E8F0;" />
             </div>
             <div>
-              <div class="field-unit" style="font-weight:600; color:var(--text-primary); margin-bottom:6px;">(b) Kết quả dự báo XGBoost (Không báo nhầm sạt lở)</div>
-              <img src="ketqua_img/PhuocLoc/Fig14/b_DuDoan.png" style="width:100%; border-radius:4px; border:1px solid var(--border);" />
+              <div style="font-size:12px; font-weight:600; color:#1E293B; margin-bottom:6px;">(b) Kết quả dự báo XGBoost (Không báo nhầm sạt lở)</div>
+              <img src="ketqua_img/PhuocLoc/Fig14/b_DuDoan.png" style="width:100%; border-radius:4px; border:1px solid #E2E8F0;" />
             </div>
             <div>
-              <div class="field-unit" style="font-weight:600; color:var(--text-primary); margin-bottom:6px;">(c) Bản đồ NDVI sau sự kiện (Suy giảm thực vật)</div>
-              <img src="ketqua_img/PhuocLoc/Fig14/c_SauSK_SatLo.png" style="width:100%; border-radius:4px; border:1px solid var(--border);" />
+              <div style="font-size:12px; font-weight:600; color:#1E293B; margin-bottom:6px;">(c) Bản đồ NDVI sau sự kiện (Suy giảm thực vật)</div>
+              <img src="ketqua_img/PhuocLoc/Fig14/c_SauSK_SatLo.png" style="width:100%; border-radius:4px; border:1px solid #E2E8F0;" />
             </div>
           </div>
         </div>
       </div>
 
       <!-- FIG 15 -->
-      <div class="surface-card">
-        <div class="surface-card-head">
+      <div class="geoportal-card">
+        <div class="geoportal-card-head">
           <span>Kịch bản 2 (Hình 15 — 15°16'32.37"N, 107°51'4.36"E): Khu vực mất thảm thực vật do San ủi Xây dựng công trình</span>
         </div>
-        <div class="surface-card-body">
+        <div class="geoportal-card-body">
           <div class="grid-3">
             <div>
-              <div class="field-unit" style="font-weight:600; color:var(--text-primary); margin-bottom:6px;">(a) Ảnh vệ tinh Google Earth (01/10/2021)</div>
-              <img src="ketqua_img/PhuocLoc/Fig15/a_VeTinh.png" style="width:100%; border-radius:4px; border:1px solid var(--border);" />
+              <div style="font-size:12px; font-weight:600; color:#1E293B; margin-bottom:6px;">(a) Ảnh vệ tinh Google Earth (01/10/2021)</div>
+              <img src="ketqua_img/PhuocLoc/Fig15/a_VeTinh.png" style="width:100%; border-radius:4px; border:1px solid #E2E8F0;" />
             </div>
             <div>
-              <div class="field-unit" style="font-weight:600; color:var(--text-primary); margin-bottom:6px;">(b) Kết quả dự báo XGBoost (Không báo nhầm sạt lở)</div>
-              <img src="ketqua_img/PhuocLoc/Fig15/b_DuDoan.png" style="width:100%; border-radius:4px; border:1px solid var(--border);" />
+              <div style="font-size:12px; font-weight:600; color:#1E293B; margin-bottom:6px;">(b) Kết quả dự báo XGBoost (Không báo nhầm sạt lở)</div>
+              <img src="ketqua_img/PhuocLoc/Fig15/b_DuDoan.png" style="width:100%; border-radius:4px; border:1px solid #E2E8F0;" />
             </div>
             <div>
-              <div class="field-unit" style="font-weight:600; color:var(--text-primary); margin-bottom:6px;">(c) Bản đồ NDVI sau sự kiện (Suy giảm thực vật)</div>
-              <img src="ketqua_img/PhuocLoc/Fig15/c_SauSK_SatLo.png" style="width:100%; border-radius:4px; border:1px solid var(--border);" />
+              <div style="font-size:12px; font-weight:600; color:#1E293B; margin-bottom:6px;">(c) Bản đồ NDVI sau sự kiện (Suy giảm thực vật)</div>
+              <img src="ketqua_img/PhuocLoc/Fig15/c_SauSK_SatLo.png" style="width:100%; border-radius:4px; border:1px solid #E2E8F0;" />
             </div>
           </div>
         </div>
@@ -1065,20 +1307,34 @@
     </div>
   </section>
 
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT LOGIC                                                          -->
+  <!-- ========================================================================= -->
   <script>
     let map;
-    let activeBaseTileLayer = null;
+    let baseLayers = {};
     let activeRasterOverlay = null;
     let boundaryLayer = null;
     let satloLayer = null;
     let kosatloLayer = null;
     let clickMarker = null;
+    let currentActiveLayerKey = 'dubao_phuocloc_xgb_5cap';
+    let currentCoords = { lat: 15.2685, lon: 107.8542, utm_x: 798639.1, utm_y: 1692332.2 };
     let MANIFEST = {};
     let STATIC_BUNDLE = null;
     let IS_STATIC_MODE = false;
 
+    const TIF_DOWNLOAD_MAP = {
+      "dubao_phuocloc_xgb_5cap": "DuBao_PhuocLoc_XGBoost.tif",
+      "ndvi_pre": "NDVI_PhuocSon_Truoc_Clipped.tif",
+      "ndvi_post": "NDVI_PhuocSon_Sau_Clipped.tif",
+      "ndvi_diff": "NDVI_Diff_PhuocSon_GEE.tif",
+      "rainfall": "rainfall_1day_10m_ps.tif",
+      "slope": "slope.tif",
+      "elevation": "Elevation.tif"
+    };
+
     function lonLatToUtm48(lon, lat) {
-      // Approximate WGS84 to UTM Zone 48N (central meridian 105°E) for display
       const a = 6378137.0, f = 1 / 298.257223563, k0 = 0.9996;
       const e2 = 2 * f - f * f;
       const phi = lat * Math.PI / 180.0;
@@ -1101,67 +1357,9 @@
       return grid.cells[r * grid.nx + c];
     }
 
-    const SAT_TIMELINE_STEPS = [
-      {
-        idx: 0,
-        short: "02/2014 (Rừng nguyên sinh)",
-        url: "https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/10/{z}/{y}/{x}"
-      },
-      {
-        idx: 1,
-        short: "03/2017 (Trước thiên tai)",
-        url: "https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/5205/{z}/{y}/{x}"
-      },
-      {
-        idx: 2,
-        short: "10/2019 (Trước bão 1 năm)",
-        url: "https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/11351/{z}/{y}/{x}"
-      },
-      {
-        idx: 3,
-        short: "09/2020 (Trước sạt lở)",
-        url: "https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/9181/{z}/{y}/{x}"
-      },
-      {
-        idx: 4,
-        short: "10/2021 (Sau sạt lở)",
-        url: "https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/16749/{z}/{y}/{x}"
-      },
-      {
-        idx: 5,
-        short: "08/2022 (Sau 2 năm)",
-        url: "https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/45441/{z}/{y}/{x}"
-      },
-      {
-        idx: 6,
-        short: "08/2023 (Năm 2023)",
-        url: "https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/64776/{z}/{y}/{x}"
-      },
-      {
-        idx: 7,
-        short: "09/2024 (Năm 2024)",
-        url: "https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/20337/{z}/{y}/{x}"
-      },
-      {
-        idx: 8,
-        short: "Google Satellite",
-        url: "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
-      }
-    ];
-
-    const TIF_DOWNLOAD_MAP = {
-      "dubao_phuocloc_xgb_5cap": "DuBao_PhuocLoc_XGBoost.tif",
-      "ndvi_pre": "NDVI_PhuocSon_Truoc_Clipped.tif",
-      "ndvi_post": "NDVI_PhuocSon_Sau_Clipped.tif",
-      "ndvi_diff": "NDVI_Diff_PhuocSon_GEE.tif",
-      "rainfall": "rainfall_1day_10m_ps.tif",
-      "slope": "slope.tif",
-      "elevation": "Elevation.tif"
-    };
-
     function switchTab(tabId, btnEl) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-viewport').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.menu-item-btn').forEach(el => el.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
       btnEl.classList.add('active');
       if (tabId === 'tab-webgis' && map) {
@@ -1169,16 +1367,69 @@
       }
     }
 
+    function toggleLeftPanel() {
+      const panel = document.getElementById('panel-left');
+      const showBtn = document.getElementById('btn-show-left-panel');
+      panel.classList.toggle('collapsed');
+      if (panel.classList.contains('collapsed')) {
+        showBtn.style.display = 'flex';
+      } else {
+        showBtn.style.display = 'none';
+      }
+    }
+
+    function toggleSubMenu(menuId) {
+      const el = document.getElementById(menuId);
+      el.style.display = el.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    function switchBaseMap(type) {
+      Object.values(baseLayers).forEach(l => {
+        if (map.hasLayer(l)) map.removeLayer(l);
+      });
+      if (baseLayers[type]) map.addLayer(baseLayers[type]);
+      const btn = document.getElementById('lbl-toggle-basemap');
+      if (btn) {
+        btn.innerText = type === 'topo' ? 'Chuyển sang Vệ tinh' : 'Chuyển sang Địa hình';
+      }
+    }
+
+    function switchBaseMapToggle() {
+      const isTopo = map.hasLayer(baseLayers['topo']);
+      switchBaseMap(isTopo ? 'google' : 'topo');
+      const radio = document.querySelector(`input[name="basemap_choice"][value="${isTopo ? 'google' : 'topo'}"]`);
+      if (radio) radio.checked = true;
+    }
+
+    function handleSearch(e) {
+      if (e.key === 'Enter') {
+        const val = e.target.value.trim();
+        if (val.includes(',') || val.includes(' ')) {
+          const parts = val.replace(',', ' ').split(/\s+/).map(Number);
+          if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+            map.setView([parts[0], parts[1]], 14);
+            querySampleAtLatLon(parts[0], parts[1]);
+            return;
+          }
+        }
+        if (val.toLowerCase().includes('phước lộc') || val.toLowerCase().includes('phuoc loc')) {
+          zoomToPhuocLoc();
+        } else {
+          zoomToPhuocSon();
+        }
+      }
+    }
+
     async function initApp() {
-      const googleSat = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+      baseLayers['google'] = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
         maxZoom: 20,
         attribution: 'Google Satellite'
       });
-      const esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      baseLayers['esri'] = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 19,
         attribution: 'Esri World Imagery'
       });
-      const topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+      baseLayers['topo'] = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
         maxZoom: 17,
         attribution: 'OpenTopoMap'
       });
@@ -1186,14 +1437,9 @@
       map = L.map('map', {
         center: [15.2685, 107.8542],
         zoom: 13,
-        layers: [googleSat]
+        zoomControl: true,
+        layers: [baseLayers['google']]
       });
-
-      L.control.layers({
-        "Bản đồ Vệ tinh Mới nhất (Google Satellite)": googleSat,
-        "Bản đồ Vệ tinh Esri (World Imagery)": esriSat,
-        "Bản đồ Địa hình (OpenTopoMap)": topoLayer
-      }, null, { position: 'topright' }).addTo(map);
 
       let data = {};
       try {
@@ -1249,15 +1495,28 @@
 
       map.on('click', onMapClick);
 
-      updateMainRasterLayer();
+      renderActiveRasterLayer();
       buildRasterGallery();
       populateFinnalTable(data.samples || []);
       querySampleAtLatLon(15.2685, 107.8542);
     }
 
-    function updateMainRasterLayer() {
-      const key = document.getElementById('select-main-layer').value;
-      const cfg = MANIFEST[key];
+    function selectLayer(key) {
+      currentActiveLayerKey = key;
+      document.querySelectorAll('.layer-row-card').forEach(card => {
+        const inp = card.querySelector('input');
+        if (inp && inp.value === key) {
+          card.classList.add('active');
+          inp.checked = true;
+        } else {
+          card.classList.remove('active');
+        }
+      });
+      renderActiveRasterLayer();
+    }
+
+    function renderActiveRasterLayer() {
+      const cfg = MANIFEST[currentActiveLayerKey];
       if (!cfg) return;
 
       if (activeRasterOverlay) {
@@ -1266,10 +1525,10 @@
       const opacity = parseFloat(document.getElementById('slider-opacity').value) / 100.0;
       activeRasterOverlay = L.imageOverlay(cfg.url, cfg.bounds, { opacity: opacity, interactive: false }).addTo(map);
 
-      const dlFile = TIF_DOWNLOAD_MAP[key] || 'DuBao_PhuocLoc_XGBoost.tif';
-      document.getElementById('btn-download-active-tif').href = `/download_tif/${dlFile}`;
+      const dlFile = TIF_DOWNLOAD_MAP[currentActiveLayerKey] || 'DuBao_PhuocLoc_XGBoost.tif';
+      document.getElementById('btn-download-tif-pill').href = `/download_tif/${dlFile}`;
 
-      updateLegendBox(key, cfg);
+      updateLegendBox(currentActiveLayerKey, cfg);
     }
 
     function updateOpacity(val) {
@@ -1330,12 +1589,12 @@
       const box = document.getElementById('map-legend');
       if (cfg.mode === 'discrete5') {
         box.innerHTML = `
-          <div class="legend-head">${cfg.short_name}</div>
-          <div class="legend-row"><span class="legend-color" style="background:#D7191C;"></span><span>Rất cao (0.80 – 1.00)</span></div>
-          <div class="legend-row"><span class="legend-color" style="background:#FDAE61;"></span><span>Cao (0.60 – 0.80)</span></div>
-          <div class="legend-row"><span class="legend-color" style="background:#FFFFBF;"></span><span>Trung bình (0.40 – 0.60)</span></div>
-          <div class="legend-row"><span class="legend-color" style="background:#ABDDA4;"></span><span>Thấp (0.20 – 0.40)</span></div>
-          <div class="legend-row"><span class="legend-color" style="background:#2B83BA;"></span><span>Rất thấp (0.00 – 0.20)</span></div>
+          <div class="legend-card-head">${cfg.short_name}</div>
+          <div class="legend-row"><span class="legend-swatch" style="background:#D7191C;"></span><span>Rất cao (0.80 – 1.00)</span></div>
+          <div class="legend-row"><span class="legend-swatch" style="background:#FDAE61;"></span><span>Cao (0.60 – 0.80)</span></div>
+          <div class="legend-row"><span class="legend-swatch" style="background:#FFFFBF;"></span><span>Trung bình (0.40 – 0.60)</span></div>
+          <div class="legend-row"><span class="legend-swatch" style="background:#ABDDA4;"></span><span>Thấp (0.20 – 0.40)</span></div>
+          <div class="legend-row"><span class="legend-swatch" style="background:#2B83BA;"></span><span>Rất thấp (0.00 – 0.20)</span></div>
         `;
       } else {
         const cb = LAYER_COLORBAR_CONFIG[key] || {
@@ -1344,11 +1603,11 @@
         };
         const tickSpans = cb.ticks.map(t => `<span>${t}</span>`).join('');
         box.innerHTML = `
-          <div class="legend-head">${cfg.short_name}</div>
-          <div style="font-size:11.5px; color:var(--text-secondary);">Đơn vị: <b>${cfg.unit}</b></div>
+          <div class="legend-card-head">${cfg.short_name}</div>
+          <div style="font-size:11px; color:#475569;">Đơn vị: <b>${cfg.unit}</b></div>
           <div class="cbar-gradient" style="background:${cb.gradient};"></div>
           <div class="cbar-ticks">${tickSpans}</div>
-          <div style="font-family:var(--mono); font-size:10.5px; color:var(--text-muted); border-top:1px solid var(--border); padding-top:4px; margin-top:2px;">
+          <div style="font-size:10px; color:#94A3B8; border-top:1px solid #E2E8F0; padding-top:4px; margin-top:2px;">
             Min thực tế: ${cfg.actual_min} · Max thực tế: ${cfg.actual_max}
           </div>
         `;
@@ -1365,7 +1624,7 @@
         radius: 6,
         color: '#FFFFFF',
         weight: 2,
-        fillColor: '#2563EB',
+        fillColor: '#0066CC',
         fillOpacity: 1.0
       }).addTo(map);
 
@@ -1420,6 +1679,8 @@
         };
       }
 
+      currentCoords = { lat: data.lat, lon: data.lon, utm_x: data.utm_x, utm_y: data.utm_y };
+
       document.getElementById('coord-pill').innerHTML =
         `<span>WGS84: ${data.lat}°N, ${data.lon}°E</span><span>UTM: ${data.utm_x}, ${data.utm_y}</span>`;
 
@@ -1447,10 +1708,10 @@
       const sub = document.getElementById('pred-sub');
 
       if (xgbProb >= 0.5) {
-        banner.className = 'result-card is-landslide';
+        banner.className = 'prediction-card is-landslide';
         title.innerText = `Cảnh báo Sạt lở (LS = 1) — Mức: ${levelText}`;
       } else {
-        banner.className = 'result-card is-safe';
+        banner.className = 'prediction-card is-safe';
         title.innerText = `An toàn / Không sạt lở (LS = 0) — Mức: ${levelText}`;
       }
 
@@ -1472,10 +1733,10 @@
         const pct = (p * 100).toFixed(1);
         const col = p >= 0.5 ? '#DC2626' : '#16A34A';
         return `
-          <div class="model-row">
-            <span class="model-label">${label}</span>
-            <div class="model-track"><div class="model-fill" style="width:${pct}%; background:${col};"></div></div>
-            <span class="model-pct" style="color:${col};">${pct}%</span>
+          <div class="model-row-item">
+            <span class="model-name">${label}</span>
+            <div class="model-track-bg"><div class="model-track-fill" style="width:${pct}%; background:${col};"></div></div>
+            <span class="model-value-pct" style="color:${col};">${pct}%</span>
           </div>
         `;
       }).join('');
@@ -1488,15 +1749,15 @@
         const item = MANIFEST[k];
         const dlFile = TIF_DOWNLOAD_MAP[k] || 'DuBao_PhuocLoc_XGBoost.tif';
         return `
-          <div class="surface-card">
-            <div class="surface-card-head">
+          <div class="geoportal-card">
+            <div class="geoportal-card-head">
               <span>${item.short_name}</span>
-              <a href="/download_tif/${dlFile}" class="btn btn-sm">Tải .TIF</a>
+              <a href="/download_tif/${dlFile}" class="quick-zoom-btn" style="text-decoration:none;">Tải .TIF</a>
             </div>
-            <div class="raster-preview">
+            <div class="card-img-preview">
               <img src="${item.url}" alt="${item.short_name}" />
             </div>
-            <div class="surface-card-foot">
+            <div class="geoportal-card-foot">
               <span>${item.width} × ${item.height} px (${item.crs})</span>
               <span>[${item.actual_min}, ${item.actual_max}]</span>
             </div>
@@ -1521,7 +1782,7 @@
             <td>${Number(r.rain).toFixed(2)}</td>
             <td>${Number(r.slope).toFixed(2)}°</td>
             <td>
-              <button class="btn btn-sm" onclick="testRowInWebGIS(${r.NDVI_truoc}, ${r.NDVI_sau}, ${r.rain}, ${r.slope}, ${idx})">
+              <button class="quick-zoom-btn" onclick="testRowInWebGIS(${r.NDVI_truoc}, ${r.NDVI_sau}, ${r.rain}, ${r.slope}, ${idx})">
                 Chọn mẫu
               </button>
             </td>
@@ -1531,7 +1792,7 @@
     }
 
     async function testRowInWebGIS(nPre, nPost, rain, slope, sampleIdx) {
-      document.querySelectorAll('.tab-btn')[0].click();
+      document.querySelectorAll('.menu-item-btn')[0].click();
       const diff = Number(nPost) - Number(nPre);
       document.getElementById('val-ndvi-pre').innerText = Number(nPre).toFixed(4);
       document.getElementById('val-ndvi-post').innerText = Number(nPost).toFixed(4);
