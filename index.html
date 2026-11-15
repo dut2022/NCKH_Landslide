@@ -900,10 +900,10 @@
       <div class="panel-card-body">
         <!-- DANH SÁCH 7 LỚP CHUYÊN ĐỀ GEOTIFF -->
         <div class="layer-radio-group">
-          <label class="layer-row-card active" onclick="selectLayer('dubao_phuocloc_xgb_5cap')">
+          <label class="layer-row-card active" onclick="selectLayer('dubao_phuocson_xgb_5cap')">
             <div class="layer-row-left">
-              <input type="radio" name="main_layer" value="dubao_phuocloc_xgb_5cap" checked />
-              <span>1. Dự báo Mới nhất (XGBoost)</span>
+              <input type="radio" name="main_layer" value="dubao_phuocson_xgb_5cap" checked />
+              <span>1. Dự báo Toàn huyện (XGBoost)</span>
             </div>
           </label>
 
@@ -1071,9 +1071,9 @@
         <!-- BẢN ĐỒ THU NHỎ (THUMBNAILS) -->
         <div class="spatial-gallery-title">Bộ sưu tập lớp bản đồ viễn thám</div>
         <div class="mini-gallery-grid">
-          <div class="mini-card-thumb" onclick="selectLayer('dubao_phuocloc_xgb_5cap')">
-            <img src="cache/dubao_phuocloc_xgb_5cap.png" alt="Dự báo" />
-            <div class="mini-card-label">Dự báo XGBoost ></div>
+          <div class="mini-card-thumb" onclick="selectLayer('dubao_phuocson_xgb_5cap')">
+            <img src="cache/dubao_phuocson_xgb_5cap.png" alt="Dự báo Toàn huyện" />
+            <div class="mini-card-label">Dự báo Toàn huyện ></div>
           </div>
           <div class="mini-card-thumb" onclick="selectLayer('ndvi_pre')">
             <img src="cache/ndvi_pre.png" alt="NDVI Trước" />
@@ -1111,7 +1111,7 @@
     <div class="page-viewport-container">
       <div class="page-header-strip">
         <h2>Dữ liệu Bản đồ Raster GeoTIFF (.TIF)</h2>
-        <p>Bao gồm 1 bản đồ dự báo sạt lở mới nhất tại Phước Lộc (XGBoost) và 6 lớp dữ liệu đầu vào đã cắt chuẩn theo ranh giới huyện Phước Sơn.</p>
+        <p>Bao gồm 1 bản đồ dự báo sạt lở toàn huyện Phước Sơn (XGBoost 10m) và 6 lớp dữ liệu đầu vào đã cắt chuẩn theo ranh giới huyện Phước Sơn.</p>
       </div>
       <div class="grid-3" id="raster-gallery-grid"></div>
     </div>
@@ -1235,9 +1235,9 @@
           </div>
         </div>
         <div class="geoportal-card">
-          <div class="geoportal-card-head"><span>Phân bố Tỷ lệ Diện tích 5 Cấp độ Nguy cơ Sạt lở</span></div>
+          <div class="geoportal-card-head"><span>Phân bố Tỷ lệ Diện tích 5 Cấp độ Nguy cơ Sạt lở — Toàn huyện Phước Sơn</span></div>
           <div class="geoportal-card-body" style="text-align:center;">
-            <img src="ketqua_img/PhuocLoc/BieuDo_CapDoSatLo_13_5.png" style="max-width:100%; max-height:380px;" />
+            <img src="ketqua_img/PhuocSon/BieuDo_CapDoSatLo_ToanPhuocSon.png" style="max-width:100%; max-height:380px;" />
           </div>
         </div>
       </div>
@@ -1314,14 +1314,14 @@
     let satloLayer = null;
     let kosatloLayer = null;
     let clickMarker = null;
-    let currentActiveLayerKey = 'dubao_phuocloc_xgb_5cap';
+    let currentActiveLayerKey = 'dubao_phuocson_xgb_5cap';
     let currentCoords = { lat: 15.2685, lon: 107.8542, utm_x: 798639.1, utm_y: 1692332.2 };
     let MANIFEST = {};
     let STATIC_BUNDLE = null;
     let IS_STATIC_MODE = false;
 
     const TIF_DOWNLOAD_MAP = {
-      "dubao_phuocloc_xgb_5cap": "DuBao_PhuocLoc_XGBoost.tif",
+      "dubao_phuocson_xgb_5cap": "DuBao_PhuocSon_XGBoost.tif",
       "ndvi_pre": "NDVI_PhuocSon_Truoc_Clipped.tif",
       "ndvi_post": "NDVI_PhuocSon_Sau_Clipped.tif",
       "ndvi_diff": "NDVI_Diff_PhuocSon_GEE.tif",
@@ -1543,17 +1543,16 @@
     }
 
     function zoomToPhuocLoc() {
-      const cfg = MANIFEST['dubao_phuocloc_xgb_5cap'];
-      if (cfg) map.fitBounds(cfg.bounds);
+      map.fitBounds([[15.19356267, 107.79661558], [15.33226255, 107.91456438]]);
     }
 
     function zoomToPhuocSon() {
-      const cfg = MANIFEST['ndvi_pre'];
+      const cfg = MANIFEST['dubao_phuocson_xgb_5cap'] || MANIFEST['ndvi_pre'];
       if (cfg) map.fitBounds(cfg.bounds);
     }
 
     const LAYER_COLORBAR_CONFIG = {
-      "dubao_phuocloc_xgb_5cap": {
+      "dubao_phuocson_xgb_5cap": {
         gradient: "linear-gradient(90deg, #2B83BA 0%, #ABDDA4 25%, #FFFFBF 50%, #FDAE61 75%, #D7191C 100%)",
         ticks: ["0.00", "0.25", "0.50", "0.75", "1.00"],
         sub: "<span>0.00 (Rất thấp)</span><span>0.50 (TB)</span><span>1.00 (Rất cao)</span>"

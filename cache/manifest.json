@@ -1,29 +1,29 @@
 {
-  "dubao_phuocloc_xgb_5cap": {
-    "key": "dubao_phuocloc_xgb_5cap",
-    "name": "1. Bản đồ Dự báo Sạt lở Mới nhất - XGBoost (DuBao_PhuocLoc_XGBoost.tif)",
-    "short_name": "1. Bản đồ Dự báo Sạt lở Mới nhất (XGBoost)",
+  "dubao_phuocson_xgb_5cap": {
+    "key": "dubao_phuocson_xgb_5cap",
+    "name": "1. Bản đồ Dự báo Sạt lở Toàn huyện Phước Sơn - XGBoost (DuBao_PhuocSon_XGBoost.tif)",
+    "short_name": "1. Bản đồ Dự báo Sạt lở Toàn huyện (XGBoost)",
     "unit": "Xác suất sạt lở (0.00 – 1.00)",
     "mode": "continuous",
     "vmin": 0.0,
     "vmax": 1.0,
     "actual_min": 0.0003,
     "actual_max": 0.9995,
-    "actual_mean": 0.1655,
+    "actual_mean": 0.0407,
     "bounds": [
       [
-        15.193562674236,
-        107.796615584236
+        15.188230268529823,
+        107.65474356231881
       ],
       [
-        15.332262553468,
-        107.9145643805
+        15.586030268529823,
+        108.02896356231881
       ]
     ],
-    "width": 1313,
-    "height": 1544,
+    "width": 2079,
+    "height": 2210,
     "crs": "EPSG:4326",
-    "url": "cache/dubao_phuocloc_xgb_5cap.png?v=4"
+    "url": "cache/dubao_phuocson_xgb_5cap.png?v=5"
   },
   "ndvi_pre": {
     "key": "ndvi_pre",
